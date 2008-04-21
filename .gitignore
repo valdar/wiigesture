@@ -1,9 +1,16 @@
 # Lines starting with '#' are considered comments.
+
 # Ignore objects
 *.o
+
 # Ignore code blocks workspace file
 *.workspace
+
 # Ignore code blocks layout file
 *.layout
+
 # Ignore code blocks depend file
 *.depend
+
+# Ignore binaries
+/bin
