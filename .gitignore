@@ -14,3 +14,9 @@
 
 # Ignore binaries
 /bin
+
+# Ignore linux directory files
+.directory
+
+# Ignore backups
+*~
