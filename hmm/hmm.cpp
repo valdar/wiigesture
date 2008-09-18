@@ -1,6 +1,6 @@
 #include "hmm.h"
 
-HMM::HMM(int stati, int osservazioni){
+HMM::HMM(int stati, int osservazioni, bool isErgodic, int span){
 
     this->numStati = stati;
     this->numOss = osservazioni;
@@ -8,10 +8,15 @@ HMM::HMM(int stati, int osservazioni){
     this->A = new double[numStati*numStati];
     this->B = new double[numStati*numOss];
 
+    if(isErgodic)
+        init_ergodic();
+    else
+        init_left_to_right(span);
+
 }
 
 
-void HMM::init_left-to-right(int span){
+void HMM::init_left_to_right(int span){
 
     int forwardLimit = span;
 
@@ -75,6 +80,7 @@ void HMM::init_ergodic(){
 /**
  * @note Deallocare la memoria all'indirizzo alpha una volta usata la funzione!!!
  */
+
 double* HMM::forwardProc(vector<int> O){
 
     int ossSize = O.size();
@@ -99,24 +105,79 @@ double* HMM::forwardProc(vector<int> O){
     return alpha;
 }
 
-void HMM::train(Vector<int*> trainsequence);
+void HMM::train(vector< vector<int> > trainingset){
 
-/**
- * @note Deallocare la memoria all'indirizzo beta una volta usata la funzione!!!
- */
-double HMM::getProbability(int* O){
+    for(int data=0; data<trainingset.size(); data++){
 
-    double* alpha = forwardProc(O);
+        vector<int> current = trainingset.at(data);
+        double* alpha = forwardProc(current);
+        double* beta = backwardProc(current);
 
-    /* passo terminazione */
+        /* aggiornamento pi */
+        if(isErgodic){
+
+            double P = getProbability(alpha);
+
+            for(int i=0; i<numStati; i++)
+                pi[i] = alpha[i][1] * beta[i][1] / P;
+        }
+
+        /* aggiornamento A */
+        for(int i=0; i<numStati; i++){
+
+            for(int j=0; j<numStati; j++){
+
+                double up = 0;
+                double down = 0;
+
+                for(int t=0; t<current.size()-2; t++){
+
+                    up += alpha[i][t] * A[i][j] * B[j][current.at(t+1)] * beta[j][t+1];
+                    down += alpha[i][t] * beta[j][t];
+
+                }//t
+
+                A[i][j] = up / down;
+
+            }//j
+        }//i
+
+        /* aggiornamento B */
+        for(int j=0; j<numStati; j++){
+
+            for(int k=0; k<numOss; k++){
+
+                double up = 0;
+                double down = 0;
+
+                for(int t=0; t<current.size()-1; t++){
+
+                    if(current.at(t) == k)
+                        up += alpha[j][t] * beta[j][t];
+
+                    down += alpha[j][t] * beta[j][t];
+                }//t
+
+                B[j][k] = up / down;
+            }//k
+        }//j
+
+    }//data
+}
+
+double HMM::getProbability(double* alpha){
+
     double prob = 0;
     for(int i=0; i<numStati; i++)
         prob += alpha[i][numOss -1];
 
-    delete[] alpha;
-
     return prob;
 }
+
+
+/**
+ * @note Deallocare la memoria all'indirizzo beta una volta usata la funzione!!!
+ */
 
 double* HMM::backwardProc(vector<int> O){
     int ossSize = O.size();
@@ -127,7 +188,7 @@ double* HMM::backwardProc(vector<int> O){
         beta[i][ossSize-1]=1;
 
     /* passo induzione */
-    for(int j=ossSize; j>=0; j--){
+    for(int j=ossSize-2; j>=0; j--){
         for(int i=0; i<numStati; i++){
             beta[i][j]=0; //inizializzazione valori matrice
             for(int stato=0; stato<numStati; stato++)

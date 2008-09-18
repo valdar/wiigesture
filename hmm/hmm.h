@@ -5,66 +5,74 @@
 
 public class HMM {
 
-	private:
+private:
 
-
+    // numero di stati
 	int numStati;
+
+	// numero di simboli osservabili
 	int numOss;
-	/** p[state] */
+
+	// true: HMM ergodico, false: HMM left-to-right
+	bool isErgodic;
+
+	// vettore probabilità stati iniziali
 	double* pi;
-	/** from state i to state j: A[i][j] */
+
+	// matrice transizione: prob da stato i a stato j A[i][j]
 	double* A;
-	/** The probability to emit symbol S in state i: B[i][symbolS] */
+
+	// matrice emissione: prob emettere simbolo k trovandosi in stato i B[i][k]
 	double* B;
 
-
+    // inizializza come HMM left-to-right
 	void init_left-to-right(int span);
+
+	// inizializza come HMM ergodico
 	void init_ergodic();
 
 	/**
-	 * Traditional Forward Algorithm.
+	 * Procedura forward.
 	 *
-	 * @param o the observationsequence O
-	 * @return Array[State][Time]
+	 * @param O la sequenza osservata
+	 * @return Array[Stato][Tempo]
 	 *
 	 */
-	double* forwardProc(int* O);
-
-
-    public:
+	double* forwardProc(vector<int> O);
 
 	/**
-	 * Initialize the Hidden Markov Model in a left-to-right version.
-	 *
-	 * @param numStates Number of states
-	 * @param sigmaSize Number of observations
-	 */
-	HMM(int stati, int osservazioni);
-
-
-
-	/**
-	 * Trains the Hidden Markov Model with multiple sequences.
-	 */
-	void train(Vector<int*> trainsequence);
-
-
-
-	/**
-	 * Returns the probability that a observation sequence O belongs
-	 * to this Hidden Markov Model without using the bayes classifier.
-	 * Internally the well known forward algorithm is used.
+	 * Riporta
 	 *
 	 * @param o observation sequence
 	 * @return probability that sequence o belongs to this hmm
 	 */
-	double getProbability(vector<int> O);
+	double getProbability(double* alpha);
+
+
+public:
 
 	/**
-	 * Backward algorithm.
+	 * Inizializza l'HMM.
 	 *
-	 * @param o observation sequence o
-	 * @return Array[State][Time]
+	 * @param stati Numero di stati
+	 * @param osservazionu Numero di simboli osservabili
+     * @param isErgodic Indica se il modello sarà ergodico (true) o left-to-right (false)
+     * @param span Indica, nel modello left-to-right, quanti stati sono connessi a sx e dx con lo stato corrente (default=2)
+	 */
+	HMM(int stati, int osservazioni, bool isErgodic, int span = 2);
+
+	/**
+	 * Addestra l'HMM a partire da un dataset di gesture
+	 *
+	 * @param trainingset Vettore delle gesture
+	 */
+	void train(vector< vector<int> > trainingset);
+
+	/**
+	 * Procedura backward.
+	 *
+	 * @param O La sequenza osservata.
+	 * @return Array[Stato][Tempo]
 	 */
 	double* backwardProc(vector<int> O);
 
