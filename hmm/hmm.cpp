@@ -124,7 +124,7 @@ double* HMM::backwardProc(vector<int> O){
 
     /* passo inizializzazione */
     for(int i=0; i<numstati; i++)
-        beta[i][ossSize]=1;
+        beta[i][ossSize-1]=1;
 
     /* passo induzione */
     for(int j=ossSize; j>=0; j--){
