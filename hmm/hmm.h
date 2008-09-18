@@ -1,7 +1,7 @@
 #ifndef HMM_H_INCLUDED
 #define HMM_H_INCLUDED
 
-
+#include <vector>
 
 public class HMM {
 
@@ -58,7 +58,7 @@ public class HMM {
 	 * @param o observation sequence
 	 * @return probability that sequence o belongs to this hmm
 	 */
-	double getProbability(int* O);
+	double getProbability(vector<int> O);
 
 	/**
 	 * Backward algorithm.
@@ -66,7 +66,7 @@ public class HMM {
 	 * @param o observation sequence o
 	 * @return Array[State][Time]
 	 */
-	double* backwardProc(int* O);
+	double* backwardProc(vector<int> O);
 
 	/**
 	 * Prints everything about this model, including
