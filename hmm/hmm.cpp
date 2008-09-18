@@ -4,9 +4,16 @@ HMM::HMM(int stati, int osservazioni, bool isErgodic, int span){
 
     this->numStati = stati;
     this->numOss = osservazioni;
-    this->pi = new int[numStati];
-    this->A = new double[numStati*numStati];
-    this->B = new double[numStati*numOss];
+
+    this->pi = new double[numStati];
+
+    this->A = new double*[numStati];
+    for(int i=0; i<numStati; i++)
+        A[i] = new double[numStati];
+
+    this->B = new double*[numStati];
+    for(int i=0; i<numStati; i++)
+        B[i] = new double[numOss];
 
     if(isErgodic)
         init_ergodic();
@@ -81,18 +88,22 @@ void HMM::init_ergodic(){
  * @note Deallocare la memoria all'indirizzo alpha una volta usata la funzione!!!
  */
 
-double* HMM::forwardProc(vector<int> O){
+double** HMM::forwardProc(std::vector<int> O){
 
     int ossSize = O.size();
-    double* alpha = new double[numStati*ossSize];
+    double** alpha = new double*[numStati];
+    for(int i=0; i<numStati; i++)
+        alpha[i] = new double[ossSize];
 
     /* passo inizializzazione */
     for(int s=0; s<numStati; s++)
-        alpha[s][0] = pi[s]*B[O.at(0)];
+        alpha[s][0] = pi[s] * B[s][O.at(0)];
 
     /* passo di induzione */
     for(int j=1; j<ossSize; j++){
+
         for(int i=0; i<numStati; i++){
+
             double temp = 0;
 
             for(int stato=0; stato<numStati; stato++)
@@ -105,13 +116,13 @@ double* HMM::forwardProc(vector<int> O){
     return alpha;
 }
 
-void HMM::train(vector< vector<int> > trainingset){
+void HMM::train(std::vector< std::vector<int> > trainingset){
 
     for(int data=0; data<trainingset.size(); data++){
 
-        vector<int> current = trainingset.at(data);
-        double* alpha = forwardProc(current);
-        double* beta = backwardProc(current);
+        std::vector<int> current = trainingset.at(data);
+        double** alpha = forwardProc(current);
+        double** beta = backwardProc(current);
 
         /* aggiornamento pi */
         if(isErgodic){
@@ -165,7 +176,7 @@ void HMM::train(vector< vector<int> > trainingset){
     }//data
 }
 
-double HMM::getProbability(double* alpha){
+double HMM::getProbability(double** alpha){
 
     double prob = 0;
     for(int i=0; i<numStati; i++)
@@ -179,12 +190,14 @@ double HMM::getProbability(double* alpha){
  * @note Deallocare la memoria all'indirizzo beta una volta usata la funzione!!!
  */
 
-double* HMM::backwardProc(vector<int> O){
+double** HMM::backwardProc(std::vector<int> O){
     int ossSize = O.size();
-    double * beta = new double [numStati*ossSize];
+    double** beta = new double*[numStati];
+    for(int i=0; i<numStati; i++)
+        beta[i] = new double[ossSize];
 
     /* passo inizializzazione */
-    for(int i=0; i<numstati; i++)
+    for(int i=0; i<numStati; i++)
         beta[i][ossSize-1]=1;
 
     /* passo induzione */
@@ -198,17 +211,12 @@ double* HMM::backwardProc(vector<int> O){
     return beta;
 }
 
-void HMM::print();
 
-void HMM::save(char* filename);
-void HMM::load(char* filename);
-
-
-double* HMM::getA(){
+double** HMM::getA(){
     return A;
 }
 
-double* HMM::getB(){
+double** HMM::getB(){
     return B;
 }
 

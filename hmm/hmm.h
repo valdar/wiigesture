@@ -3,7 +3,7 @@
 
 #include <vector>
 
-public class HMM {
+class HMM {
 
 private:
 
@@ -20,13 +20,13 @@ private:
 	double* pi;
 
 	// matrice transizione: prob da stato i a stato j A[i][j]
-	double* A;
+	double** A;
 
 	// matrice emissione: prob emettere simbolo k trovandosi in stato i B[i][k]
-	double* B;
+	double** B;
 
     // inizializza come HMM left-to-right
-	void init_left-to-right(int span);
+	void init_left_to_right(int span);
 
 	// inizializza come HMM ergodico
 	void init_ergodic();
@@ -36,17 +36,16 @@ private:
 	 *
 	 * @param O la sequenza osservata
 	 * @return Array[Stato][Tempo]
-	 *
 	 */
-	double* forwardProc(vector<int> O);
+	double** forwardProc(std::vector<int> O);
 
 	/**
-	 * Riporta
+	 * Riporta la probabilità della sequenza osservata.
 	 *
-	 * @param o observation sequence
-	 * @return probability that sequence o belongs to this hmm
+	 * @param alpha Matrice delle variabili forward (calcolabile con forwardProc)
+	 * @return Probabilità della sequenza osservata O dato il modello lambda: P(O|lambda)
 	 */
-	double getProbability(double* alpha);
+	double getProbability(double** alpha);
 
 
 public:
@@ -66,7 +65,7 @@ public:
 	 *
 	 * @param trainingset Vettore delle gesture
 	 */
-	void train(vector< vector<int> > trainingset);
+	void train(std::vector< std::vector<int> > trainingset);
 
 	/**
 	 * Procedura backward.
@@ -74,29 +73,21 @@ public:
 	 * @param O La sequenza osservata.
 	 * @return Array[Stato][Tempo]
 	 */
-	double* backwardProc(vector<int> O);
+	double** backwardProc(std::vector<int> O);
 
-	/**
-	 * Prints everything about this model, including
-	 * all values. For debug purposes or if you want
-	 * to comprehend what happend to the model.
-	 *
-	 */
 	void print();
-
     void save(char* filename);
     void load(char* filename);
 
 
-	double* getA();
-	double* getB();
+	double** getA();
+	double** getB();
 	double* getPi();
 
 	int getNumStati();
 	int getNumOss();
 
-}
-
+};
 
 
 #endif // HMM_H_INCLUDED

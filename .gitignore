@@ -13,7 +13,7 @@
 *.depend
 
 # Ignore binaries
-/bin
+hmm/bin/*
 
 # Ignore linux directory files
 .directory
