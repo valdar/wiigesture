@@ -2,6 +2,8 @@
 #define HMM_H_INCLUDED
 
 #include <vector>
+#include <iostream>
+#include <fstream>
 
 class HMM {
 
@@ -67,6 +69,14 @@ public:
 	 */
 	void train(std::vector< std::vector<int> > trainingset);
 
+    /**
+	 * Training con sequenze multiple
+	 *
+	 * @param trainingset Vettore delle gesture
+	 */
+	void trainMS(std::vector< std::vector<int> > trainingset);
+
+
 	/**
 	 * Procedura backward.
 	 *
@@ -75,7 +85,15 @@ public:
 	 */
 	double** backwardProc(std::vector<int> O);
 
+    /**
+     * Stampa a video il contenuto delle matrici A e B
+     *
+     */
 	void print();
+
+	void print_to_file();
+
+
     void save(char* filename);
     void load(char* filename);
 

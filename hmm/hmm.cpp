@@ -176,6 +176,121 @@ void HMM::train(std::vector< std::vector<int> > trainingset){
     }//data
 }
 
+
+void HMM::trainMS(std::vector< std::vector<int> > trainingset){
+
+    double** A_up = new double*[numStati];
+    double** A_down = new double*[numStati];
+    double** B_up = new double*[numStati];
+    double** B_down = new double*[numStati];
+
+    for(int i=0; i<numStati; i++){
+        A_up[i] = new double[numStati];
+        A_down[i] = new double[numStati];
+        B_up[i] = new double[numOss];
+        B_down[i] = new double[numOss];
+    }
+
+    /* inizializza A_up, A_down, B_up, B_down a zero */
+    for(int i=0; i<numStati; i++){
+        for(int j=0; j<numStati; j++){
+            A_up[i][j] = 0;
+            A_down[i][j] = 0;
+        }
+
+        for(int k=0; k<numOss; k++){
+            B_up[i][k] = 0;
+            B_down[i][k] = 0;
+        }
+    }
+
+    for(int data=0; data<trainingset.size(); data++){
+
+        std::vector<int> current = trainingset.at(data);
+        double** alpha = forwardProc(current);
+        double** beta = backwardProc(current);
+
+        double P = getProbability(alpha);
+
+        /* aggiornamento pi */
+        if(isErgodic){
+            for(int i=0; i<numStati; i++)
+                pi[i] = alpha[i][1] * beta[i][1] / P;
+        }
+
+        /* aggiornamento A */
+        for(int i=0; i<numStati; i++){
+
+            for(int j=0; j<numStati; j++){
+
+                double up = 0;
+                double down = 0;
+
+                for(int t=0; t<current.size()-2; t++){
+
+                    up += alpha[i][t] * A[i][j] * B[j][current.at(t+1)] * beta[j][t+1];
+                    down += alpha[i][t] * beta[j][t];
+
+                }//t
+
+                A_up[i][j] += up / P;
+                A_down[i][j] += down / P;
+
+            }//j
+        }//i
+
+
+        /* aggiornamento B */
+        for(int j=0; j<numStati; j++){
+
+            for(int k=0; k<numOss; k++){
+
+                double up = 0;
+                double down = 0;
+
+                for(int t=0; t<current.size()-1; t++){
+
+                    if(current.at(t) == k)
+                        up += alpha[j][t] * beta[j][t];
+
+                    down += alpha[j][t] * beta[j][t];
+                }//t
+
+                B_up[j][k] += up / P;
+                B_down[j][k] += down / P;
+
+            }//k
+        }//j
+
+    }//data
+
+    /* aggiorna le matrici A e B */
+    for(int i=0; i<numStati; i++){
+
+        for(int j=0; j<numStati; j++)
+            A[i][j] = A_up[i][j] / A_down[i][j];
+
+        for(int k=0; k<numOss; k++)
+            B[i][k] = B_up[i][k] / B_down[i][k];
+
+    }
+
+    /* libera la memoria usata per calcoli temporanei */
+     for(int i=0; i<numStati; i++){
+         delete A_up[i];
+         delete A_down[i];
+         delete B_up[i];
+         delete B_down[i];
+     }
+
+     delete A_up;
+     delete A_down;
+     delete B_up;
+     delete B_down;
+
+}
+
+
 double HMM::getProbability(double** alpha){
 
     double prob = 0;
@@ -210,6 +325,58 @@ double** HMM::backwardProc(std::vector<int> O){
     }
     return beta;
 }
+
+
+void HMM::print(){
+
+    std::cout.precision(15);
+    std::cout.setf(std::ios_base::scientific, std::ios_base::floatfield);
+
+    std::cout<<"Matrice A"<<std::endl;
+
+    for(int i=0; i<numStati; i++){
+        for(int j=0; j<numStati; j++)
+            std::cout <<" " << A[i][j];
+        std::cout<<std::endl;
+    }
+
+    std::cout<<std::endl<<"Matrice B"<<std::endl;
+    for(int i=0; i<numStati; i++){
+        for(int j=0; j<numOss; j++)
+            std::cout <<" " << B[i][j];
+        std::cout<<std::endl;
+    }
+
+}
+
+
+void HMM::print_to_file(){
+
+    std::ofstream outfile;
+    outfile.open("out.txt");
+
+    outfile.precision(15);
+    outfile.setf(std::ios_base::scientific, std::ios_base::floatfield);
+
+    outfile<<"Matrice A"<<std::endl;
+
+    for(int i=0; i<numStati; i++){
+        for(int j=0; j<numStati; j++)
+            outfile <<" " << A[i][j];
+        outfile<<std::endl;
+    }
+
+    outfile<<std::endl<<"Matrice B"<<std::endl;
+    for(int i=0; i<numStati; i++){
+        for(int j=0; j<numOss; j++)
+            outfile <<" " << B[i][j];
+        outfile<<std::endl;
+    }
+
+    outfile.close();
+
+}
+
 
 
 double** HMM::getA(){

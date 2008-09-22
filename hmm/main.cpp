@@ -6,14 +6,19 @@
 
 using namespace std;
 
+/**
+ *TODO: leggere "Types of HMM" (266)
+ *      leggere parte riguardo scaling (272 + errata)
+ *      leggere riguardo training con sequenze multiple (273)
+*/
 
 int main()
 {
     srand(time(0));
 
-    int size = 1 + rand()%1000;
-
-
+    // se size<2 si ha errore in backwardProc, e crash a riga 146 di hmm.cpp
+    int size = 16;// 1 + rand()%1000;
+    int num_samples = 1;
 
     vector<int> gesture;
     for(int i=0; i<size; i++)
@@ -21,16 +26,20 @@ int main()
 
     int numStati = 8;
     int numSimboli = 14;
-    bool isErgodic = true;
+    bool isErgodic = false;
 
     HMM hmm(numStati, numSimboli, isErgodic);
 
     vector< vector<int> > dataset;
-    dataset.push_back(gesture);
+    for(int i=0; i<num_samples; i++)
+        dataset.push_back(gesture);
 
-    hmm.train(dataset);
+    hmm.trainMS(dataset);
 
     cout << "size: " << size << endl;
+
+    hmm.print();
+    hmm.print_to_file();
 
     return 0;
 }
