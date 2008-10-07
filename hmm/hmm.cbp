@@ -32,9 +32,8 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="hmm.cpp" />
-		<Unit filename="hmm.h" />
-		<Unit filename="main.cpp" />
+		<Unit filename="include/Gaussian_3d.h" />
+		<Unit filename="src/Gaussian_3d.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

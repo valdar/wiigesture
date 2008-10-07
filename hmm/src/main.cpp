@@ -3,6 +3,8 @@
 #include <ctime>
 
 #include "hmm.h"
+#include "Gaussian_3d.h"
+#include "Gaussian_3d_mixture.h"
 
 using namespace std;
 
@@ -14,6 +16,7 @@ using namespace std;
 
 int main()
 {
+    /*
     srand(time(0));
 
     // se size<2 si ha errore in backwardProc, e crash a riga 146 di hmm.cpp
@@ -40,6 +43,11 @@ int main()
 
     hmm.print();
     hmm.print_to_file();
+    */
+
+    Gaussian_3d* g = new Gaussian_3d();
+
+    std::cout<<g->cov<<std::endl;
 
     return 0;
 }
