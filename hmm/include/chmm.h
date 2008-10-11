@@ -6,6 +6,8 @@
 #include <iostream>
 #include <fstream>
 
+#include "Gaussian_3d_mixture.h"
+
 class cHMM {
 
 private:
@@ -20,13 +22,10 @@ private:
 	double* pi;
 
 	// matrice transizione: prob da stato i a stato j A[i][j]
-	double** A;
+	boost::numeric::ublas::matrix<double> A;
 
-	// vettore pesi gaussiane
-
-	// matrice valori medi
-
-	// matrice covarianze
+    // vettore contenente una mistura di gaussiane per ogni stato
+	std::vector<Gaussian_3d_mixture> mixture_vect;
 
     // inizializza come HMM left-to-right
 	void init_left_to_right(int span);
@@ -58,9 +57,10 @@ public:
 	 *
 	 * @param stati Numero di stati
      * @param isErgodic Indica se il modello sarà ergodico (true) o left-to-right (false)
+     * @param gaussPerMixture numero di gaussiane per mistura (default=1)
      * @param span Indica, nel modello left-to-right, quanti stati sono connessi a sx e dx con lo stato corrente (default=2)
 	 */
-	cHMM(int stati, bool isErgodic, int span = 2);
+	cHMM(int stati, bool isErgodic, int gaussPerMixture = 1, int span = 2);
 
 	/**
 	 * Addestra l'HMM a partire da un dataset di gesture
@@ -96,7 +96,6 @@ public:
 
     void save(char* filename);
     void load(char* filename);
-
 
 	double** getA();
 	double** getB();

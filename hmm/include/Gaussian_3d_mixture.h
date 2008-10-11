@@ -7,12 +7,13 @@ class Gaussian_3d_mixture{
 
 public:
     int howmany;
-    Gaussian_3d* components;
+    vector<Gaussian_3d> components;
     double* weight;
 
     Gaussian_3d_mixture(int howmany);
     Gaussian_3d_mixture(int howmany, double* weight);
     Gaussian_3d_mixture(int howmany, double* weight, Gaussian_3d* components);
+
 };
 
 

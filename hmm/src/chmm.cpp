@@ -1,14 +1,15 @@
 
 #include "chmm.h"
 
-cHMM::cHMM(int stati, bool isErgodic, int span){
+cHMM::cHMM(int stati, bool isErgodic, int gaussPerMixture, int span){
 
     this->numStati = stati;
     this->pi = new double[numStati];
+    this->A.resize(numStati, numStati);
 
-    this->A = new double*[numStati];
-    for(int i=0; i<numStati; i++)
-        A[i] = new double[numStati];
+    for(int i=0; i<numStati; i++){
+        mixture_vect.push( *(new Gaussian_3d_mixture(gaussPerMixture)) );
+    }
 
     if(isErgodic)
         init_ergodic();
@@ -32,19 +33,19 @@ void cHMM::init_left_to_right(int span){
         for(int j=0; j<numStati; j++) {
 
             if(i==numStati-1 && j==numStati-1) { // ultimo elemento (basso a dx)
-                A[i][j] = 1.0;
+                A(i,j) = 1.0;
             }
             else if(i==numStati-2 && j==numStati-2) {
-                A[i][j] = 0.5;
+                A(i,j) = 0.5;
             }
             else if(i==numStati-2 && j==numStati-1) {
-                A[i][j] = 0.5;
+                A(i,j) = 0.5;
             }
             else if(i<=j && i>j-forwardLimit-1) {
-                A[i][j] = 1.0/( (double) (forwardLimit+1) );
+                A(i,j) = 1.0/( (double) (forwardLimit+1) );
             }
             else {
-                A[i][j] = 0.0;
+                A(i,j) = 0.0;
             }
         }
     }
@@ -63,16 +64,16 @@ void cHMM::init_ergodic(){
     /* matrice di transizione */
     for(int i=0; i<numStati; i++){
         for(int j=0; j<numStati; j++){
-            A[i][j] = 1.0 / (double) numStati;
+            A(i,j) = 1.0 / (double) numStati;
         }
     }
 
-    /* matrice di emissione */
-    for(int i=0; i<numStati; i++)
-        for(int j=0; j<numOss; j++)
-            B[i][j] = 1.0 / (double) numOss;
-
 }
+
+/******************* FINE CORREZIONE **********************/
+// TODO: scrivere funzione "B"
+// cambiare matrici in matrix di boost
+// scaling
 
 /**
  * @note Deallocare la memoria all'indirizzo alpha una volta usata la funzione!!!
@@ -81,6 +82,7 @@ void cHMM::init_ergodic(){
 double** cHMM::forwardProc(std::vector<int> O){
 
     int ossSize = O.size();
+
     double** alpha = new double*[numStati];
     for(int i=0; i<numStati; i++)
         alpha[i] = new double[ossSize];
@@ -133,12 +135,12 @@ void cHMM::train(std::vector< std::vector<int> > trainingset){
 
                 for(int t=0; t<current.size()-2; t++){
 
-                    up += alpha[i][t] * A[i][j] * B[j][current.at(t+1)] * beta[j][t+1];
+                    up += alpha[i][t] * A(i,j) * B[j][current.at(t+1)] * beta[j][t+1];
                     down += alpha[i][t] * beta[j][t];
 
                 }//t
 
-                A[i][j] = up / down;
+                A(i,j) = up / down;
 
             }//j
         }//i
@@ -218,7 +220,7 @@ void cHMM::trainMS(std::vector< std::vector<int> > trainingset){
 
                 for(int t=0; t<current.size()-2; t++){
 
-                    up += alpha[i][t] * A[i][j] * B[j][current.at(t+1)] * beta[j][t+1];
+                    up += alpha[i][t] * A(i,j) * B[j][current.at(t+1)] * beta[j][t+1];
                     down += alpha[i][t] * beta[j][t];
 
                 }//t
@@ -258,7 +260,7 @@ void cHMM::trainMS(std::vector< std::vector<int> > trainingset){
     for(int i=0; i<numStati; i++){
 
         for(int j=0; j<numStati; j++)
-            A[i][j] = A_up[i][j] / A_down[i][j];
+            A(i,j) = A_up[i][j] / A_down[i][j];
 
         for(int k=0; k<numOss; k++)
             B[i][k] = B_up[i][k] / B_down[i][k];
@@ -326,7 +328,7 @@ void cHMM::print(){
 
     for(int i=0; i<numStati; i++){
         for(int j=0; j<numStati; j++)
-            std::cout <<" " << A[i][j];
+            std::cout <<" " << A(i,j);
         std::cout<<std::endl;
     }
 
@@ -352,7 +354,7 @@ void cHMM::print_to_file(){
 
     for(int i=0; i<numStati; i++){
         for(int j=0; j<numStati; j++)
-            outfile <<" " << A[i][j];
+            outfile <<" " << A(i,j);
         outfile<<std::endl;
     }
 
