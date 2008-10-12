@@ -8,7 +8,7 @@ cHMM::cHMM(int stati, bool isErgodic, int gaussPerMixture, int span){
     this->A.resize(numStati, numStati);
 
     for(int i=0; i<numStati; i++){
-        mixture_vect.push( *(new Gaussian_3d_mixture(gaussPerMixture)) );
+        mixture_vect.push_back( *(new Gaussian_3d_mixture(gaussPerMixture)) );
     }
 
     if(isErgodic)
@@ -70,43 +70,118 @@ void cHMM::init_ergodic(){
 
 }
 
-/******************* FINE CORREZIONE **********************/
-// TODO: scrivere funzione "B"
-// cambiare matrici in matrix di boost
-// scaling
+
+double cHMM::B(int stato, Sample_3d sample){
+
+    return mixture_vect.at(stato).mix_probability(sample);
+
+}
+
+void cHMM::forwardProc(std::vector< Sample_3d > O, boost::numeric::ublas::matrix<double> &alpha){
+
+    double scale[O.size()];
+    forwardProc_scale(O, alpha, scale);
+
+}
 
 /**
- * @note Deallocare la memoria all'indirizzo alpha una volta usata la funzione!!!
+ * @note scale deve avere dimensione pari a O.size()
  */
 
-double** cHMM::forwardProc(std::vector<int> O){
+void cHMM::forwardProc_scale(std::vector< Sample_3d > O, boost::numeric::ublas::matrix<double> &alpha, double* scale){
 
+    int i,j,t;
+
+    // numero componenti della gesture
     int ossSize = O.size();
 
-    double** alpha = new double*[numStati];
-    for(int i=0; i<numStati; i++)
-        alpha[i] = new double[ossSize];
+    // alpha: numStati x ossSize
+    /* passo inizializzazione: formula 19 */
+    for(i=0; i<numStati; i++)
+        alpha(i,0) = pi[i] * B(i, O.at(0));
 
-    /* passo inizializzazione */
-    for(int s=0; s<numStati; s++)
-        alpha[s][0] = pi[s] * B[s][O.at(0)];
+    // scaling iniziale: formula 92a
+    scale[0] = 0;
+    for(i=0; i<numStati; i++)
+        scale[0] += alpha(i,0);
+    for(i=0; i<numStati; i++)
+        alpha(i,0) = alpha(i,0) / scale[0];
 
-    /* passo di induzione */
-    for(int j=1; j<ossSize; j++){
+    /* passo di induzione: formula 20 */
+    for(t=1; t<ossSize; t++){
 
-        for(int i=0; i<numStati; i++){
+        scale[t] = 0;
+
+        for(j=0; j<numStati; j++){
 
             double temp = 0;
 
-            for(int stato=0; stato<numStati; stato++)
-                temp += alpha[stato][j-1] * A[stato][i];
+            for(i=0; i<numStati; i++)
+                temp += alpha(i, t-1) * A(i,j);
 
-            alpha[i][j] = temp*B[i][O.at(j)];
+            alpha(j,t) = temp*B(j, O.at(t));
+
+            // calcola il coefficiente di scaling corrente
+            scale[t] += alpha(j,t);
+        }
+
+        // scaling
+        for(j=0; j<numStati; j++){
+            alpha(j,t) = alpha(j,t) / scale[t];
         }
     }
 
-    return alpha;
 }
+
+
+double cHMM::getProbabilityFromAlpha(boost::numeric::ublas::matrix<double> alpha){
+
+    double prob = 0;
+    for(int i=0; i<numStati; i++)
+        prob += alpha(i, alpha.size2()-1);
+
+    return prob;
+}
+
+
+/**
+ * @note Deallocare la memoria all'indirizzo beta una volta usata la funzione!!!
+ */
+
+void cHMM::backwardProc(std::vector< Sample_3d > O, boost::numeric::ublas::matrix<double> &beta, double* scale){
+    int ossSize = O.size();
+
+    /* passo inizializzazione con scaling */
+    for(int i=0; i<numStati; i++)
+        beta(i,ossSize-1) = 1 / scale[ossSize-1];
+
+    /* passo induzione */
+    for(int t=ossSize-2; t>=0; t--){
+
+        for(int i=0; i<numStati; i++){
+
+            //inizializzazione valori matrice
+            beta(i,t)=0;
+
+            for(int stato=0; stato<numStati; stato++){
+                // calcolo beta
+                beta(i,t) += A(i,stato) * B(stato,O.at(t+1)) * beta(stato,t+1);
+                // scaling
+                beta(i,t) = beta(i,t) / scale[t];
+            }
+
+        }
+    }
+}
+
+/******************* FINE CORREZIONE **********************/
+// TODO: scrivere funzione "B"          ----- ok
+// cambiare matrici in matrix di boost
+// scaling: forward     --- ok
+//          backward    --- ok
+// training
+
+
 
 void cHMM::train(std::vector< std::vector<int> > trainingset){
 
@@ -116,7 +191,7 @@ void cHMM::train(std::vector< std::vector<int> > trainingset){
         double** alpha = forwardProc(current);
         double** beta = backwardProc(current);
 
-        /* aggiornamento pi */
+        // aggiornamento pi
         if(isErgodic){
 
             double P = getProbability(alpha);
@@ -125,7 +200,7 @@ void cHMM::train(std::vector< std::vector<int> > trainingset){
                 pi[i] = alpha[i][1] * beta[i][1] / P;
         }
 
-        /* aggiornamento A */
+        // aggiornamento A
         for(int i=0; i<numStati; i++){
 
             for(int j=0; j<numStati; j++){
@@ -145,7 +220,7 @@ void cHMM::train(std::vector< std::vector<int> > trainingset){
             }//j
         }//i
 
-        /* aggiornamento B */
+        // aggiornamento B
         for(int j=0; j<numStati; j++){
 
             for(int k=0; k<numOss; k++){
@@ -183,7 +258,7 @@ void cHMM::trainMS(std::vector< std::vector<int> > trainingset){
         B_down[i] = new double[numOss];
     }
 
-    /* inizializza A_up, A_down, B_up, B_down a zero */
+    // inizializza A_up, A_down, B_up, B_down a zero
     for(int i=0; i<numStati; i++){
         for(int j=0; j<numStati; j++){
             A_up[i][j] = 0;
@@ -204,13 +279,13 @@ void cHMM::trainMS(std::vector< std::vector<int> > trainingset){
 
         double P = getProbability(alpha);
 
-        /* aggiornamento pi */
+        // aggiornamento pi
         if(isErgodic){
             for(int i=0; i<numStati; i++)
                 pi[i] = alpha[i][1] * beta[i][1] / P;
         }
 
-        /* aggiornamento A */
+        // aggiornamento A
         for(int i=0; i<numStati; i++){
 
             for(int j=0; j<numStati; j++){
@@ -232,7 +307,7 @@ void cHMM::trainMS(std::vector< std::vector<int> > trainingset){
         }//i
 
 
-        /* aggiornamento B */
+        // aggiornamento B
         for(int j=0; j<numStati; j++){
 
             for(int k=0; k<numOss; k++){
@@ -256,7 +331,7 @@ void cHMM::trainMS(std::vector< std::vector<int> > trainingset){
 
     }//data
 
-    /* aggiorna le matrici A e B */
+    // aggiorna le matrici A e B
     for(int i=0; i<numStati; i++){
 
         for(int j=0; j<numStati; j++)
@@ -267,7 +342,7 @@ void cHMM::trainMS(std::vector< std::vector<int> > trainingset){
 
     }
 
-    /* libera la memoria usata per calcoli temporanei */
+    // libera la memoria usata per calcoli temporanei
      for(int i=0; i<numStati; i++){
          delete A_up[i];
          delete A_down[i];
@@ -280,42 +355,6 @@ void cHMM::trainMS(std::vector< std::vector<int> > trainingset){
      delete B_up;
      delete B_down;
 
-}
-
-
-double cHMM::getProbability(double** alpha){
-
-    double prob = 0;
-    for(int i=0; i<numStati; i++)
-        prob += alpha[i][numOss -1];
-
-    return prob;
-}
-
-
-/**
- * @note Deallocare la memoria all'indirizzo beta una volta usata la funzione!!!
- */
-
-double** cHMM::backwardProc(std::vector<int> O){
-    int ossSize = O.size();
-    double** beta = new double*[numStati];
-    for(int i=0; i<numStati; i++)
-        beta[i] = new double[ossSize];
-
-    /* passo inizializzazione */
-    for(int i=0; i<numStati; i++)
-        beta[i][ossSize-1]=1;
-
-    /* passo induzione */
-    for(int j=ossSize-2; j>=0; j--){
-        for(int i=0; i<numStati; i++){
-            beta[i][j]=0; //inizializzazione valori matrice
-            for(int stato=0; stato<numStati; stato++)
-                beta[i][j] += A[i][stato]*B[stato][O.at(j+1)]*beta[stato][j+1];
-        }
-    }
-    return beta;
 }
 
 
@@ -332,12 +371,14 @@ void cHMM::print(){
         std::cout<<std::endl;
     }
 
-    std::cout<<std::endl<<"Matrice B"<<std::endl;
+    /*
+    std::cout<<std::endl<<"funzione B"<<std::endl;
     for(int i=0; i<numStati; i++){
         for(int j=0; j<numOss; j++)
-            std::cout <<" " << B[i][j];
+            std::cout <<" " << B(i,mixture_vect.at(j));
         std::cout<<std::endl;
     }
+    */
 
 }
 
@@ -358,25 +399,21 @@ void cHMM::print_to_file(){
         outfile<<std::endl;
     }
 
+    /*
     outfile<<std::endl<<"Matrice B"<<std::endl;
     for(int i=0; i<numStati; i++){
         for(int j=0; j<numOss; j++)
-            outfile <<" " << B[i][j];
+            outfile <<" " << B(i,mixture_vect.at(j));
         outfile<<std::endl;
     }
+    */
 
     outfile.close();
 
 }
 
-
-
-double** cHMM::getA(){
+boost::numeric::ublas::matrix<double> cHMM::getA(){
     return A;
-}
-
-double** cHMM::getB(){
-    return B;
 }
 
 double* cHMM::getPi(){
@@ -385,8 +422,4 @@ double* cHMM::getPi(){
 
 int cHMM::getNumStati(){
     return numStati;
-}
-
-int cHMM::getNumOss(){
-    return numOss;
 }

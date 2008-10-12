@@ -4,9 +4,10 @@
 #define MAX_ACC 4.0
 
 #include <math.h>
-
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
+
+#include "sample_3d.h"
 
 
 class Gaussian_3d{
@@ -16,7 +17,7 @@ public:
     boost::numeric::ublas::matrix<double> cov;
 
     Gaussian_3d(bool rand=false) : cov(3,3) { if(rand) rand_init(); else zero_init(); };
-    double pdf_3d(double* x);
+    double pdf_3d(Sample_3d x);
 
 private:
     double det_3d(boost::numeric::ublas::matrix<double> mat);

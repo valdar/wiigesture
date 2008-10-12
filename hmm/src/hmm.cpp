@@ -290,7 +290,9 @@ void HMM::trainMS(std::vector< std::vector<int> > trainingset){
 
 }
 
-
+/**
+ * @note: errore!!! numOss è sbagliato, bisogna usare ossSize (lunghezza osservazione)
+ */
 double HMM::getProbability(double** alpha){
 
     double prob = 0;

@@ -7,6 +7,7 @@
 #include <fstream>
 
 #include "Gaussian_3d_mixture.h"
+#include "sample_3d.h"
 
 class cHMM {
 
@@ -33,13 +34,29 @@ private:
 	// inizializza come HMM ergodico
 	void init_ergodic();
 
+    // probability density function
+	double B(int stato, Sample_3d sample);
+
 	/**
 	 * Procedura forward.
 	 *
+	 * Calcola i coefficienti alpha, usando scaling
+	 *
 	 * @param O la sequenza osservata
-	 * @return Array[Stato][Tempo]
+	 * @param alpha matrice dei coefficienti da calcolare
 	 */
-	double** forwardProc(std::vector<int> O);
+	void forwardProc(std::vector< Sample_3d > O, boost::numeric::ublas::matrix<double> &alpha);
+
+    /**
+	 * Procedura forward.
+	 *
+	 * Calcola i coefficienti alpha, usando scaling, e salva i coefficienti di scaling
+	 *
+	 * @param O la sequenza osservata
+	 * @param alpha matrice dei coefficienti da calcolare
+	 * @param scale vettore coefficienti di scaling
+	 */
+	void forwardProc_scale(std::vector< Sample_3d > O, boost::numeric::ublas::matrix<double> &alpha, double* scale);
 
 	/**
 	 * Riporta la probabilità della sequenza osservata.
@@ -47,7 +64,7 @@ private:
 	 * @param alpha Matrice delle variabili forward (calcolabile con forwardProc)
 	 * @return Probabilità della sequenza osservata O dato il modello lambda: P(O|lambda)
 	 */
-	double getProbability(double** alpha);
+	double getProbabilityFromAlpha(boost::numeric::ublas::matrix<double> alpha);
 
 
 public:
@@ -62,28 +79,32 @@ public:
 	 */
 	cHMM(int stati, bool isErgodic, int gaussPerMixture = 1, int span = 2);
 
+
+    double getProbability(std::vector< Sample_3d > O);
+
 	/**
 	 * Addestra l'HMM a partire da un dataset di gesture
 	 *
 	 * @param trainingset Vettore delle gesture
 	 */
-	void train(std::vector< std::vector<int> > trainingset);
+	void train(std::vector< std::vector< Sample_3d > > trainingset);
 
     /**
 	 * Training con sequenze multiple
 	 *
 	 * @param trainingset Vettore delle gesture
 	 */
-	void trainMS(std::vector< std::vector<int> > trainingset);
+	void trainMS(std::vector< std::vector< Sample_3d > > trainingset);
 
 
 	/**
 	 * Procedura backward.
 	 *
 	 * @param O La sequenza osservata.
-	 * @return Array[Stato][Tempo]
+	 * @param beta matrice che conterrà il risultato [Stato][Tempo]
+	 * @param scale vettore dei coefficienti di scaling, calcolati nella procedura forward
 	 */
-	double** backwardProc(std::vector<int> O);
+	void backwardProc(std::vector< Sample_3d > O, boost::numeric::ublas::matrix<double> &beta, double* scale);
 
     /**
      * Stampa a video il contenuto delle matrici A e B
@@ -97,12 +118,10 @@ public:
     void save(char* filename);
     void load(char* filename);
 
-	double** getA();
-	double** getB();
+	boost::numeric::ublas::matrix<double> getA();
 	double* getPi();
-
 	int getNumStati();
-	int getNumOss();
+
 
 };
 

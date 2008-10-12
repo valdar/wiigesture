@@ -37,7 +37,7 @@ void Gaussian_3d::inv_3d(boost::numeric::ublas::matrix<double> mat, boost::numer
 
 }
 
-double Gaussian_3d::pdf_3d(double* x){
+double Gaussian_3d::pdf_3d(Sample_3d x){
 
     /* determinante mat covarianza */
     double det = det_3d(cov);

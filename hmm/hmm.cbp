@@ -39,11 +39,13 @@
 		<Unit filename="include/cgaussian.h" />
 		<Unit filename="include/chmm.h" />
 		<Unit filename="include/hmm.h" />
+		<Unit filename="include/sample_3d.h" />
 		<Unit filename="src/Gaussian_3d.cpp" />
 		<Unit filename="src/Gaussian_3d_mixture.cpp" />
 		<Unit filename="src/chmm.cpp" />
 		<Unit filename="src/hmm.cpp" />
 		<Unit filename="src/main.cpp" />
+		<Unit filename="src/sample_3d.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />
