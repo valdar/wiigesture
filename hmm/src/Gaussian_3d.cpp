@@ -1,4 +1,5 @@
 #include "Gaussian_3d.h"
+#include <string>
 
 
 void Gaussian_3d::zero_init(){
@@ -84,4 +85,16 @@ void Gaussian_3d::rand_init(){
 				cov(i,j) = 0.0;
 		}
 	}
+}
+
+std::ostream& operator<<(std::ostream& os, const Gaussian_3d& g){
+
+    os<<"Covarianze: "<<g.cov<<std::endl<<"Medie ";
+
+    for(int i=0; i<3; i++)
+        os<<g.mean[i]<<";";
+
+    os<<std::endl;
+
+    return os;
 }

@@ -29,8 +29,15 @@ int main()
     for(int i=0; i<num_samples; i++){
     	 vector<Sample_3d>* gesture = new vector<Sample_3d>();
     	for(int j=0; j<size; j++){
-			Sample_3d* s = new Sample_3d( (double) 1.0 + 1.0/(rand()%15), (double) 1.0 + 1.0/(rand()%15), (double) 1.0 + 1.0/(rand()%15) );
+    	    double x = 2.0 + 1.0/(1 + rand()%10);
+    	    double y = 2.0 + 1.0/(1 + rand()%10);
+    	    double z = 2.0 + 1.0/(1 + rand()%10);
+			Sample_3d* s = new Sample_3d(x, y, z);
 			gesture->push_back( *s );
+
+			// check
+			std::cout<<"Sample "<<j<<std::endl;
+            std::cout<<s->getData()[0]<<";"<<s->getData()[1]<<";"<<s->getData()[2]<<";"<<std::endl;
     	}
 
     	dataset.push_back(*gesture);
@@ -40,7 +47,7 @@ int main()
     int numStati = 8;
     bool isErgodic = false;
 
-    cHMM hmm(numStati, isErgodic, 3);
+    cHMM hmm(numStati, isErgodic, 1);
 
     hmm.train(dataset);
 

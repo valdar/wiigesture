@@ -97,8 +97,15 @@ void cHMM::forwardProc_scale(std::vector< Sample_3d > O, boost::numeric::ublas::
 
     // alpha: numStati x ossSize
     /* passo inizializzazione: formula 19 */
-    for(i=0; i<numStati; i++)
+    for(i=0; i<numStati; i++){
         alpha(i,0) = pi[i] * B(i, O.at(0));
+        // debug
+        //std::cout<<B(i, O.at(0))<<std::endl;
+    }
+
+    // debug
+    std::cout<<"Alpha in forward_proc_scale dopo ciclo iniziale:"<<std::endl;
+    std::cout<<alpha<<std::endl;
 
     // scaling iniziale: formula 92a
     scale[0] = 0;
@@ -130,9 +137,6 @@ void cHMM::forwardProc_scale(std::vector< Sample_3d > O, boost::numeric::ublas::
             alpha(j,t) = alpha(j,t) / scale[t];
         }
     }
-
-    std::cout<< "alpha:" << std::endl;
-            std::cout<< alpha << std::endl;
 
 }
 
@@ -179,9 +183,6 @@ void cHMM::backwardProc(std::vector< Sample_3d > O, boost::numeric::ublas::matri
 
         }
     }
-
-    std::cout<< "beta:" << std::endl;
-            std::cout<< beta << std::endl;
 }
 
 void cHMM::train(std::vector< std::vector<Sample_3d> > trainingset){
@@ -202,10 +203,12 @@ void cHMM::train(std::vector< std::vector<Sample_3d> > trainingset){
         backwardProc(current, beta, scale);
 
         // debug
+        /*
         std::cout<< "alpha:" << std::endl;
         std::cout<< alpha << std::endl;
         std::cout<< "beta:" << std::endl;
         std::cout<< beta << std::endl;
+        */
 
         // aggiornamento pi
         if(isErgodic){
@@ -501,6 +504,14 @@ void cHMM::print(){
         for(int j=0; j<numStati; j++)
             std::cout <<" " << A(i,j);
         std::cout<<std::endl;
+    }
+
+    std::cout<<"Parametri gaussiane:"<<std::endl;
+    for(int i=0; i<mixture_vect.size(); i++){
+        for(int j=0; j<mixture_vect.at(i).howmany; j++){
+            std::cout<<"Mistura "<<i<<" - gaussiana "<<j<<":"<<std::endl;
+            std::cout<<mixture_vect.at(i).components.at(j)<<std::endl;
+        }
     }
 
     /*

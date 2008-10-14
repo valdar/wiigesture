@@ -4,6 +4,7 @@
 #define MAX_ACC 4.0
 
 #include <math.h>
+#include <iostream>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
 
@@ -11,6 +12,8 @@
 
 
 class Gaussian_3d{
+
+    friend std::ostream& operator<<(std::ostream& os, const Gaussian_3d& g);
 
 public:
     double mean[3];
