@@ -66,6 +66,17 @@ private:
 	 */
 	double getProbabilityFromAlpha(boost::numeric::ublas::matrix<double> alpha);
 
+	double getProbabilityFromScale(double* scale, int size);
+
+	/**
+	 * Procedura backward.
+	 *
+	 * @param O La sequenza osservata.
+	 * @param beta matrice che conterrà il risultato [Stato][Tempo]
+	 * @param scale vettore dei coefficienti di scaling, calcolati nella procedura forward
+	 */
+	void backwardProc(std::vector< Sample_3d > O, boost::numeric::ublas::matrix<double> &beta, double* scale);
+
 
 public:
 
@@ -95,16 +106,6 @@ public:
 	 * @param trainingset Vettore delle gesture
 	 */
 	void trainMS(std::vector< std::vector< Sample_3d > > trainingset);
-
-
-	/**
-	 * Procedura backward.
-	 *
-	 * @param O La sequenza osservata.
-	 * @param beta matrice che conterrà il risultato [Stato][Tempo]
-	 * @param scale vettore dei coefficienti di scaling, calcolati nella procedura forward
-	 */
-	void backwardProc(std::vector< Sample_3d > O, boost::numeric::ublas::matrix<double> &beta, double* scale);
 
     /**
      * Stampa a video il contenuto delle matrici A e B

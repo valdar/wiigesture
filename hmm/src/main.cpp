@@ -2,7 +2,8 @@
 #include <cstdlib>
 #include <ctime>
 
-#include "hmm.h"
+#include "chmm.h"
+#include "sample_3d.h"
 #include "Gaussian_3d.h"
 #include "Gaussian_3d_mixture.h"
 
@@ -16,38 +17,36 @@ using namespace std;
 
 int main()
 {
-    /*
+
     srand(time(0));
 
     // se size<2 si ha errore in backwardProc, e crash a riga 146 di hmm.cpp
-    int size = 16;// 1 + rand()%1000;
+    int size = 10;// + rand()%100;
     int num_samples = 1;
 
-    vector<int> gesture;
-    for(int i=0; i<size; i++)
-        gesture.push_back(1 + rand()%14);
+    vector< vector<Sample_3d> > dataset;
+
+    for(int i=0; i<num_samples; i++){
+    	 vector<Sample_3d>* gesture = new vector<Sample_3d>();
+    	for(int j=0; j<size; j++){
+			Sample_3d* s = new Sample_3d( (double) 1.0 + 1.0/(rand()%15), (double) 1.0 + 1.0/(rand()%15), (double) 1.0 + 1.0/(rand()%15) );
+			gesture->push_back( *s );
+    	}
+
+    	dataset.push_back(*gesture);
+	}
+
 
     int numStati = 8;
-    int numSimboli = 14;
     bool isErgodic = false;
 
-    HMM hmm(numStati, numSimboli, isErgodic);
+    cHMM hmm(numStati, isErgodic, 3);
 
-    vector< vector<int> > dataset;
-    for(int i=0; i<num_samples; i++)
-        dataset.push_back(gesture);
-
-    hmm.trainMS(dataset);
+    hmm.train(dataset);
 
     cout << "size: " << size << endl;
 
     hmm.print();
-    hmm.print_to_file();
-    */
-
-    Gaussian_3d* g = new Gaussian_3d();
-
-    std::cout<<g->cov<<std::endl;
 
     return 0;
 }

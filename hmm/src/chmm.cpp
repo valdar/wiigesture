@@ -131,6 +131,9 @@ void cHMM::forwardProc_scale(std::vector< Sample_3d > O, boost::numeric::ublas::
         }
     }
 
+    std::cout<< "alpha:" << std::endl;
+            std::cout<< alpha << std::endl;
+
 }
 
 
@@ -143,10 +146,14 @@ double cHMM::getProbabilityFromAlpha(boost::numeric::ublas::matrix<double> alpha
     return prob;
 }
 
+double cHMM::getProbabilityFromScale(double* scale, int size){
+	double prob = 1;
+	for(int i=0; i<size; i++)
+		prob *= scale[i];
 
-/**
- * @note Deallocare la memoria all'indirizzo beta una volta usata la funzione!!!
- */
+	return 1/prob;
+}
+
 
 void cHMM::backwardProc(std::vector< Sample_3d > O, boost::numeric::ublas::matrix<double> &beta, double* scale){
     int ossSize = O.size();
@@ -172,32 +179,41 @@ void cHMM::backwardProc(std::vector< Sample_3d > O, boost::numeric::ublas::matri
 
         }
     }
+
+    std::cout<< "beta:" << std::endl;
+            std::cout<< beta << std::endl;
 }
 
-/******************* FINE CORREZIONE **********************/
-// TODO: scrivere funzione "B"          ----- ok
-// cambiare matrici in matrix di boost
-// scaling: forward     --- ok
-//          backward    --- ok
-// training
-
-
-
-void cHMM::train(std::vector< std::vector<int> > trainingset){
+void cHMM::train(std::vector< std::vector<Sample_3d> > trainingset){
 
     for(int data=0; data<trainingset.size(); data++){
 
-        std::vector<int> current = trainingset.at(data);
-        double** alpha = forwardProc(current);
-        double** beta = backwardProc(current);
+        std::vector<Sample_3d> current = trainingset.at(data);
+        boost::numeric::ublas::matrix<double> alpha(numStati, current.size());
+        boost::numeric::ublas::matrix<double> beta(numStati, current.size());
+        double scale[current.size()];
+
+        // debug
+        std::cout<< "scale:" << std::endl;
+        for(int d=0; d<current.size(); d++)
+            std::cout<<scale[d]<<std::endl;
+
+        forwardProc_scale(current, alpha, scale);
+        backwardProc(current, beta, scale);
+
+        // debug
+        std::cout<< "alpha:" << std::endl;
+        std::cout<< alpha << std::endl;
+        std::cout<< "beta:" << std::endl;
+        std::cout<< beta << std::endl;
 
         // aggiornamento pi
         if(isErgodic){
 
-            double P = getProbability(alpha);
+            double P = getProbabilityFromScale(scale, (int)current.size());
 
             for(int i=0; i<numStati; i++)
-                pi[i] = alpha[i][1] * beta[i][1] / P;
+                pi[i] = alpha(i,1) * beta(i,1) / P;
         }
 
         // aggiornamento A
@@ -208,10 +224,10 @@ void cHMM::train(std::vector< std::vector<int> > trainingset){
                 double up = 0;
                 double down = 0;
 
-                for(int t=0; t<current.size()-2; t++){
+                for(int t=0; t<current.size()-1; t++){
 
-                    up += alpha[i][t] * A(i,j) * B[j][current.at(t+1)] * beta[j][t+1];
-                    down += alpha[i][t] * beta[j][t];
+                    up += alpha(i,t) * A(i,j) * B(j,current.at(t+1)) * beta(j,t+1);
+                    down += alpha(i,t) * beta(j,t);
 
                 }//t
 
@@ -220,30 +236,146 @@ void cHMM::train(std::vector< std::vector<int> > trainingset){
             }//j
         }//i
 
-        // aggiornamento B
+        // aggiornamento parametri gaussiane
+        // gamma[t][j][k]
+        double ***gamma;
+        gamma = (double ***)malloc(current.size() * sizeof(double **));
+        for (int t = 0; t < current.size(); t++)
+        {
+            gamma[t] = (double **)malloc(numStati * sizeof(double *));
+            for (int j = 0; j < numStati; j++)
+            {
+			gamma[t][j] = (double *)malloc(mixture_vect.at(j).howmany * sizeof(double));
+            }
+        }
+
+        // calcolo gamma
+        for(int t=0; t<current.size(); t++){
+
+            double sum = 0;
+            for(int j=0; j<numStati; j++){
+                sum += alpha(j,t)*beta(j,t);
+            }
+
+            for(int j=0; j<numStati; j++){
+
+                for(int k=0; k<mixture_vect.at(j).howmany; k++){
+
+                    gamma[t][j][k] = alpha(j,t) * beta(j,t) * mixture_vect.at(j).weight[k] *
+                                        mixture_vect.at(j).components.at(k).pdf_3d(current.at(t)) /
+                                        ( sum * B(j, current.at(t)) );
+
+                }
+            }
+
+        }
+
+        // aggiornamento pesi misture: mixture_vect.at(STATO).weight[MISTURA]
         for(int j=0; j<numStati; j++){
 
-            for(int k=0; k<numOss; k++){
+            int n_mix = mixture_vect.at(j).howmany;
 
-                double up = 0;
+            for(int k=0; k<n_mix; k++){
+
+                double up = 0, down = 0;
+
+                for(int t=0; t<current.size(); t++){
+
+                    up += gamma[t][j][k];
+
+                    for(int m=0; m<n_mix; m++){
+
+                        down += gamma[t][j][m];
+                    }
+
+                }
+
+                mixture_vect.at(j).weight[k] = up / down;
+
+            }
+        }
+
+        // aggiornamento medie
+        for(int j=0; j<numStati; j++){
+
+            int n_mix = mixture_vect.at(j).howmany;
+
+            for(int k=0; k<n_mix; k++){
+
                 double down = 0;
 
-                for(int t=0; t<current.size()-1; t++){
+                for(int t=0; t<current.size(); t++){
 
-                    if(current.at(t) == k)
-                        up += alpha[j][t] * beta[j][t];
+                    down += gamma[t][j][k];
 
-                    down += alpha[j][t] * beta[j][t];
-                }//t
+                }
 
-                B[j][k] = up / down;
-            }//k
-        }//j
+                for(int n=0; n<3; n++){
+
+                    double up = 0;
+
+                    for(int t=0; t<current.size(); t++){
+
+                        up += gamma[t][j][k] * current.at(t)[n];
+
+                    }
+
+                    mixture_vect.at(j).components.at(k).mean[n] = up / down;
+
+                }
+            }
+        }
+
+        // aggiornamento covarianze
+        for(int j=0; j<numStati; j++){
+
+            int n_mix = mixture_vect.at(j).howmany;
+
+            for(int k=0; k<n_mix; k++){
+
+                double down = 0;
+
+                for(int t=0; t<current.size(); t++){
+
+                    down += gamma[t][j][k];
+
+                }
+
+                for(int n=0; n<3; n++){
+
+                    double up = 0;
+
+                    for(int t=0; t<current.size(); t++){
+
+                        up += gamma[t][j][k] *
+                                (current.at(t)[n] - mixture_vect.at(j).components.at(k).mean[n]) *
+                                (current.at(t)[n] - mixture_vect.at(j).components.at(k).mean[n]);
+
+                    }
+
+                    // nota: si aggiornano solo le covarianze sulla diagonale, in quanto lavoriamo
+                    // con matrici di covarianza diagonali
+                    mixture_vect.at(j).components.at(k).cov(n,n) = up / down;
+
+                }
+            }
+        }
+
+        // può servire check su covarianze, cioè se cov(i,i) < K, allora cov(i,i) = K
+
+        // libera la memoria
+        for (int t = 0; t < current.size(); t++){
+            for (int j = 0; j < numStati; j++){
+                free(gamma[t][j]);
+            }
+            free(gamma[t]);
+        }
+        free(gamma);
 
     }//data
 }
 
-
+/*
 void cHMM::trainMS(std::vector< std::vector<int> > trainingset){
 
     double** A_up = new double*[numStati];
@@ -356,7 +488,7 @@ void cHMM::trainMS(std::vector< std::vector<int> > trainingset){
      delete B_down;
 
 }
-
+*/
 
 void cHMM::print(){
 
