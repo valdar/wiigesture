@@ -13,11 +13,13 @@ public:
     std::vector<Gaussian_3d> components;
     double* weight;
 
-    Gaussian_3d_mixture(int howmany);
+    Gaussian_3d_mixture(int howmany, bool zero = false);
     Gaussian_3d_mixture(int howmany, double* weight);
     Gaussian_3d_mixture(int howmany, double* weight, std::vector<Gaussian_3d> components);
 
     double mix_probability(Sample_3d x);
+
+    ~Gaussian_3d_mixture();
 
 };
 

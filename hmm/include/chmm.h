@@ -16,6 +16,9 @@ private:
     // numero di stati
 	int numStati;
 
+	// numero gaussiane per mistura
+	int nGauss;
+
 	// true: HMM ergodico, false: HMM left-to-right
 	bool isErgodic;
 

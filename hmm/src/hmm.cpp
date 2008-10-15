@@ -116,6 +116,7 @@ double** HMM::forwardProc(std::vector<int> O){
     return alpha;
 }
 
+
 void HMM::train(std::vector< std::vector<int> > trainingset){
 
     for(int data=0; data<trainingset.size(); data++){
