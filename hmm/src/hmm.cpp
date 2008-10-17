@@ -1,31 +1,25 @@
 #include "hmm.h"
 
-HMM::HMM(int stati, int osservazioni, bool isErgodic, int span){
+HMM::HMM(int stati, int osservazioni, bool ergodic, int span){
 
     this->numStati = stati;
-    this->numOss = osservazioni;
+    this->numSimboli = osservazioni;
+    this->forwardLimit = span;
+    this->isErgodic = ergodic;
 
     this->pi = new double[numStati];
-
-    this->A = new double*[numStati];
-    for(int i=0; i<numStati; i++)
-        A[i] = new double[numStati];
-
-    this->B = new double*[numStati];
-    for(int i=0; i<numStati; i++)
-        B[i] = new double[numOss];
+    this->A.resize(numStati, numStati);
+    this->B.resize(numStati, numSimboli);
 
     if(isErgodic)
         init_ergodic();
     else
-        init_left_to_right(span);
+        init_left_to_right();
 
 }
 
 
-void HMM::init_left_to_right(int span){
-
-    int forwardLimit = span;
+void HMM::init_left_to_right(){
 
     /* probabilità stato iniziale */
     pi[0] = 1.0;
@@ -37,27 +31,27 @@ void HMM::init_left_to_right(int span){
         for(int j=0; j<numStati; j++) {
 
             if(i==numStati-1 && j==numStati-1) { // ultimo elemento (basso a dx)
-                A[i][j] = 1.0;
+                A(i,j) = 1.0;
             }
             else if(i==numStati-2 && j==numStati-2) {
-                A[i][j] = 0.5;
+                A(i,j) = 0.5;
             }
             else if(i==numStati-2 && j==numStati-1) {
-                A[i][j] = 0.5;
+                A(i,j) = 0.5;
             }
             else if(i<=j && i>j-forwardLimit-1) {
-                A[i][j] = 1.0/( (double) (forwardLimit+1) );
+                A(i,j) = 1.0/( (double) (forwardLimit+1) );
             }
             else {
-                A[i][j] = 0.0;
+                A(i,j) = 0.0;
             }
         }
     }
 
      /* matrice di emissione */
     for(int i=0; i<numStati; i++)
-        for(int j=0; j<numOss; j++)
-            B[i][j] = 1.0 / (double) numOss;
+        for(int j=0; j<numSimboli; j++)
+            B(i,j) = 1.0 / (double) numSimboli;
 
 }
 
@@ -73,31 +67,36 @@ void HMM::init_ergodic(){
     /* matrice di transizione */
     for(int i=0; i<numStati; i++){
         for(int j=0; j<numStati; j++){
-            A[i][j] = 1.0 / (double) numStati;
+            A(i,j) = 1.0 / (double) numStati;
         }
     }
 
     /* matrice di emissione */
     for(int i=0; i<numStati; i++)
-        for(int j=0; j<numOss; j++)
-            B[i][j] = 1.0 / (double) numOss;
+        for(int j=0; j<numSimboli; j++)
+            B(i,j) = 1.0 / (double) numSimboli;
 
 }
+
+void HMM::reset(){
+    if(isErgodic)
+        init_ergodic();
+    else
+        init_left_to_right();
+}
+
 
 /**
  * @note Deallocare la memoria all'indirizzo alpha una volta usata la funzione!!!
  */
 
-double** HMM::forwardProc(std::vector<int> O){
+void HMM::forwardProc(std::vector<int> O, boost::numeric::ublas::matrix<double>& alpha){
 
     int ossSize = O.size();
-    double** alpha = new double*[numStati];
-    for(int i=0; i<numStati; i++)
-        alpha[i] = new double[ossSize];
 
     /* passo inizializzazione */
     for(int s=0; s<numStati; s++)
-        alpha[s][0] = pi[s] * B[s][O.at(0)];
+        alpha(s,0) = pi[s] * B(s,O.at(0));
 
     /* passo di induzione */
     for(int j=1; j<ossSize; j++){
@@ -107,25 +106,24 @@ double** HMM::forwardProc(std::vector<int> O){
             double temp = 0;
 
             for(int stato=0; stato<numStati; stato++)
-                temp += alpha[stato][j-1] * A[stato][i];
+                temp += alpha(stato,j-1) * A(stato,i);
 
-            alpha[i][j] = temp*B[i][O.at(j)];
+            alpha(i,j) = temp*B(i,O.at(j));
         }
     }
 
-    return alpha;
 }
 
-
+/*
 void HMM::train(std::vector< std::vector<int> > trainingset){
 
     for(int data=0; data<trainingset.size(); data++){
 
         std::vector<int> current = trainingset.at(data);
-        double** alpha = forwardProc(current);
-        double** beta = backwardProc(current);
+        boost::numeric::ublas::matrix<double> alpha = forwardProc(current);
+        boost::numeric::ublas::matrix<double> beta = backwardProc(current);
 
-        /* aggiornamento pi */
+        // aggiornamento pi
         if(isErgodic){
 
             double P = getProbability(alpha, current.size());
@@ -134,7 +132,7 @@ void HMM::train(std::vector< std::vector<int> > trainingset){
                 pi[i] = alpha[i][1] * beta[i][1] / P;
         }
 
-        /* aggiornamento A */
+        // aggiornamento A
         for(int i=0; i<numStati; i++){
 
             for(int j=0; j<numStati; j++){
@@ -144,20 +142,20 @@ void HMM::train(std::vector< std::vector<int> > trainingset){
 
                 for(int t=0; t<current.size()-2; t++){
 
-                    up += alpha[i][t] * A[i][j] * B[j][current.at(t+1)] * beta[j][t+1];
+                    up += alpha[i][t] * A(i,j) * B[j][current.at(t+1)] * beta[j][t+1];
                     down += alpha[i][t] * beta[j][t];
 
                 }//t
 
-                A[i][j] = up / down;
+                A(i,j) = up / down;
 
             }//j
         }//i
 
-        /* aggiornamento B */
+        // aggiornamento B
         for(int j=0; j<numStati; j++){
 
-            for(int k=0; k<numOss; k++){
+            for(int k=0; k<numSimboli; k++){
 
                 double up = 0;
                 double down = 0;
@@ -176,8 +174,8 @@ void HMM::train(std::vector< std::vector<int> > trainingset){
 
     }//data
 }
-
-
+*/
+/*
 void HMM::trainMS(std::vector< std::vector<int> > trainingset){
 
     double** A_up = new double*[numStati];
@@ -188,18 +186,18 @@ void HMM::trainMS(std::vector< std::vector<int> > trainingset){
     for(int i=0; i<numStati; i++){
         A_up[i] = new double[numStati];
         A_down[i] = new double[numStati];
-        B_up[i] = new double[numOss];
-        B_down[i] = new double[numOss];
+        B_up[i] = new double[numSimboli];
+        B_down[i] = new double[numSimboli];
     }
 
-    /* inizializza A_up, A_down, B_up, B_down a zero */
+    // inizializza A_up, A_down, B_up, B_down a zero
     for(int i=0; i<numStati; i++){
         for(int j=0; j<numStati; j++){
             A_up[i][j] = 0;
             A_down[i][j] = 0;
         }
 
-        for(int k=0; k<numOss; k++){
+        for(int k=0; k<numSimboli; k++){
             B_up[i][k] = 0;
             B_down[i][k] = 0;
         }
@@ -211,24 +209,17 @@ void HMM::trainMS(std::vector< std::vector<int> > trainingset){
         double** alpha = forwardProc(current);
         double** beta = backwardProc(current);
 
-        /*
-        std::cout<<"alpha"<<std::endl;
-        for(int i=0; i<numStati; i++){
-            for(int k=0; k<current.size(); k++)
-                std::cout<<alpha[i][k]<<" ";
-            std::cout<<std::endl;
-        }
-        */
+
 
         double P = getProbability(alpha, current.size());
 
-        /* aggiornamento pi */
+        // aggiornamento pi
         if(isErgodic){
             for(int i=0; i<numStati; i++)
                 pi[i] = alpha[i][1] * beta[i][1] / P;
         }
 
-        /* aggiornamento A */
+        // aggiornamento A
         for(int i=0; i<numStati; i++){
 
             for(int j=0; j<numStati; j++){
@@ -236,9 +227,9 @@ void HMM::trainMS(std::vector< std::vector<int> > trainingset){
                 double up = 0;
                 double down = 0;
 
-                for(int t=0; t<current.size()-2; t++){
+                for(int t=0; t<current.size()-1; t++){
 
-                    up += alpha[i][t] * A[i][j] * B[j][current.at(t+1)] * beta[j][t+1];
+                    up += alpha[i][t] * A(i,j) * B[j][current.at(t+1)] * beta[j][t+1];
                     down += alpha[i][t] * beta[j][t];
 
                 }//t
@@ -250,10 +241,10 @@ void HMM::trainMS(std::vector< std::vector<int> > trainingset){
         }//i
 
 
-        /* aggiornamento B */
+        // aggiornamento B
         for(int j=0; j<numStati; j++){
 
-            for(int k=0; k<numOss; k++){
+            for(int k=0; k<numSimboli; k++){
 
                 double up = 0;
                 double down = 0;
@@ -274,18 +265,18 @@ void HMM::trainMS(std::vector< std::vector<int> > trainingset){
 
     }//data
 
-    /* aggiorna le matrici A e B */
+    // aggiorna le matrici A e B
     for(int i=0; i<numStati; i++){
 
         for(int j=0; j<numStati; j++)
-            A[i][j] = A_up[i][j] / A_down[i][j];
+            A(i,j) = A_up[i][j] / A_down[i][j];
 
-        for(int k=0; k<numOss; k++)
+        for(int k=0; k<numSimboli; k++)
             B[i][k] = B_up[i][k] / B_down[i][k];
 
     }
 
-    /* libera la memoria usata per calcoli temporanei */
+    // libera la memoria usata per calcoli temporanei
      for(int i=0; i<numStati; i++){
          delete A_up[i];
          delete A_down[i];
@@ -299,47 +290,151 @@ void HMM::trainMS(std::vector< std::vector<int> > trainingset){
      delete B_down;
 
 }
+*/
 
-/**
- * @note: errore!!! numOss è sbagliato, bisogna usare ossSize (lunghezza osservazione)
- */
-double HMM::getProbability(double** alpha, int size){
+void HMM::trainMS2(std::vector< std::vector<int> > trainingset){
+
+    boost::numeric::ublas::matrix<double> A_new(numStati, numStati);
+    boost::numeric::ublas::matrix<double> B_new(numStati, numSimboli);
+
+        // aggiornamento pi
+        if(this->isErgodic){
+            for(int data=0; data<trainingset.size(); data++){
+
+                std::vector<int> current = trainingset.at(data);
+                boost::numeric::ublas::matrix<double> alpha(numStati, current.size());
+                forwardProc(current, alpha);
+                boost::numeric::ublas::matrix<double> beta(numStati, current.size());
+                backwardProc(current, beta);
+                double P = getProbability(alpha);
+
+                for(int i=0; i<numStati; i++)
+                    pi[i] = alpha(i,1) * beta(i,1) / P;
+
+            }
+        }
+
+        // aggiornamento A
+        for(int i=0; i<numStati; i++){
+
+            for(int j=0; j<numStati; j++){
+
+                double up_sum = 0;
+                double down_sum = 0;
+
+                for(int data=0; data<trainingset.size(); data++){
+
+                    this->reset();
+                    double up = 0;
+                    double down = 0;
+                    std::vector<int> current = trainingset.at(data);
+                    boost::numeric::ublas::matrix<double> alpha(numStati, current.size());
+                    forwardProc(current, alpha);
+                    boost::numeric::ublas::matrix<double> beta(numStati, current.size());
+                    backwardProc(current, beta);
+                    double P = getProbability(alpha);
+
+                    for(int t=0; t<current.size()-1; t++){
+
+                        up += alpha(i,t) * A(i,j) * B(j,current.at(t+1)) * beta(j,t+1);
+                        down += alpha(i,t) * beta(j,t);
+
+                    }//t
+
+                    up_sum += up;
+                    down_sum += down;
+
+                }//data
+
+                A_new(i,j) = up_sum / down_sum;
+
+            }//j
+        }//i
+
+
+        // aggiornamento B
+        for(int j=0; j<numStati; j++){
+
+            for(int k=0; k<numSimboli; k++){
+
+                double up_sum = 0;
+                double down_sum = 0;
+
+                for(int data=0; data<trainingset.size(); data++){
+
+                    this->reset();
+                    double up = 0;
+                    double down = 0;
+                    std::vector<int> current = trainingset.at(data);
+                    boost::numeric::ublas::matrix<double> alpha(numStati, current.size());
+                    forwardProc(current, alpha);
+                    boost::numeric::ublas::matrix<double> beta(numStati, current.size());
+                    backwardProc(current, beta);
+                    double P = getProbability(alpha);
+
+                    for(int t=0; t<current.size()-1; t++){
+
+                        if(current.at(t) == k)
+                            up += alpha(j,t) * beta(j,t);
+
+                        down += alpha(j,t) * beta(j,t);
+                    }//t
+
+                    up_sum += up;
+                    down_sum += down;
+
+                }//data
+
+                B_new(j,k) = up_sum / down_sum;
+
+            }//k
+        }//j
+
+        // aggiornamento matrici
+        this->A = A_new;
+        this->B = B_new;
+
+}
+
+
+double HMM::getProbability(const boost::numeric::ublas::matrix<double> &alpha){
 
     double prob = 0;
-    for(int i=0; i<numStati; i++)
-        prob += alpha[i][size -1];
+    int size = alpha.size1();
+    for(int i=0; i<size; i++)
+        prob += alpha(i,size -1);
 
     return prob;
 }
 
 double HMM::getP(std::vector<int> O){
-    double** alpha = forwardProc(O);
-    return getProbability(alpha, O.size());
+    boost::numeric::ublas::matrix<double> alpha(numStati, O.size());
+    forwardProc(O, alpha);
+    return getProbability(alpha);
 }
 
-/**
- * @note Deallocare la memoria all'indirizzo beta una volta usata la funzione!!!
- */
 
-double** HMM::backwardProc(std::vector<int> O){
+void HMM::backwardProc(std::vector<int> O, boost::numeric::ublas::matrix<double>& beta){
+
     int ossSize = O.size();
-    double** beta = new double*[numStati];
-    for(int i=0; i<numStati; i++)
-        beta[i] = new double[ossSize];
 
-    /* passo inizializzazione */
+    // passo inizializzazione
     for(int i=0; i<numStati; i++)
-        beta[i][ossSize-1]=1;
+        beta(i,ossSize-1) = 1;
 
-    /* passo induzione */
+    // passo induzione
     for(int j=ossSize-2; j>=0; j--){
+
         for(int i=0; i<numStati; i++){
-            beta[i][j]=0; //inizializzazione valori matrice
+
+            beta(i,j) = 0; //inizializzazione valori matrice
+
             for(int stato=0; stato<numStati; stato++)
-                beta[i][j] += A[i][stato]*B[stato][O.at(j+1)]*beta[stato][j+1];
+                beta(i,j) += A(i,stato) * B(stato,O.at(j+1)) * beta(stato,j+1);
+
         }
     }
-    return beta;
+
 }
 
 
@@ -352,22 +447,22 @@ void HMM::print(){
 
     for(int i=0; i<numStati; i++){
         for(int j=0; j<numStati; j++)
-            std::cout <<" " << A[i][j];
+            std::cout <<" " << A(i,j);
         std::cout<<std::endl;
     }
 
     std::cout<<std::endl<<"Matrice B"<<std::endl;
     for(int i=0; i<numStati; i++){
-        for(int j=0; j<numOss; j++)
-            std::cout <<" " << B[i][j];
+        for(int j=0; j<numSimboli; j++)
+            std::cout <<" " << B(i,j);
         std::cout<<std::endl;
     }
 
     std::cout<<"Somma per righe di B"<<std::endl;
     for(int i=0; i<numStati; i++){
         double row = 0;
-        for(int j=0; j<numOss; j++)
-            row += B[i][j];
+        for(int j=0; j<numSimboli; j++)
+            row += B(i,j);
 
         std::cout<<"Riga "<<i<<": "<<row<<std::endl;
     }
@@ -387,14 +482,14 @@ void HMM::print_to_file(){
 
     for(int i=0; i<numStati; i++){
         for(int j=0; j<numStati; j++)
-            outfile <<" " << A[i][j];
+            outfile <<" " << A(i,j);
         outfile<<std::endl;
     }
 
     outfile<<std::endl<<"Matrice B"<<std::endl;
     for(int i=0; i<numStati; i++){
-        for(int j=0; j<numOss; j++)
-            outfile <<" " << B[i][j];
+        for(int j=0; j<numSimboli; j++)
+            outfile <<" " << B(i,j);
         outfile<<std::endl;
     }
 
@@ -403,12 +498,11 @@ void HMM::print_to_file(){
 }
 
 
-
-double** HMM::getA(){
+boost::numeric::ublas::matrix<double> HMM::getA(){
     return A;
 }
 
-double** HMM::getB(){
+boost::numeric::ublas::matrix<double> HMM::getB(){
     return B;
 }
 
@@ -420,6 +514,6 @@ int HMM::getNumStati(){
     return numStati;
 }
 
-int HMM::getNumOss(){
-    return numOss;
+int HMM::getNumSimboli(){
+    return numSimboli;
 }

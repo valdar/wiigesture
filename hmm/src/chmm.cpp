@@ -465,8 +465,8 @@ void cHMM::trainMS(std::vector< std::vector<Sample_3d> > trainingset){
 
                 }//t
 
-                A_up(i,j) += up / P;
-                A_down(i,j) += down / P;
+                A_up(i,j) += up;// / P;
+                A_down(i,j) += down;// / P;
 
             }//j
         }//i
@@ -530,8 +530,8 @@ void cHMM::trainMS(std::vector< std::vector<Sample_3d> > trainingset){
 
                 }
 
-                gaussians_up.at(j).weight[k] += up / P;
-                gaussians_down.at(j).weight[k] += down / P;
+                gaussians_up.at(j).weight[k] += up;// / P;
+                gaussians_down.at(j).weight[k] += down;// / P;
 
                 //mixture_vect.at(j).weight[k] = up / down;
 
@@ -563,8 +563,8 @@ void cHMM::trainMS(std::vector< std::vector<Sample_3d> > trainingset){
 
                     }
 
-                    gaussians_up.at(j).components.at(k).mean[n] += up / P;
-                    gaussians_down.at(j).components.at(k).mean[n] += down / P;
+                    gaussians_up.at(j).components.at(k).mean[n] += up;// / P;
+                    gaussians_down.at(j).components.at(k).mean[n] += down;// / P;
 
                     //mixture_vect.at(j).components.at(k).mean[n] = up / down;
 
@@ -601,8 +601,8 @@ void cHMM::trainMS(std::vector< std::vector<Sample_3d> > trainingset){
 
                     // nota: si aggiornano solo le covarianze sulla diagonale, in quanto lavoriamo
                     // con matrici di covarianza diagonali
-                    gaussians_up.at(j).components.at(k).cov(n,n) += up / P;
-                    gaussians_down.at(j).components.at(k).cov(n,n) += down / P;
+                    gaussians_up.at(j).components.at(k).cov(n,n) += up;// / P;
+                    gaussians_down.at(j).components.at(k).cov(n,n) += down;// / P;
 
                     //mixture_vect.at(j).components.at(k).cov(n,n) = up / down;
 

@@ -5,6 +5,9 @@
 #include <iostream>
 #include <fstream>
 
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/io.hpp>
+
 class HMM {
 
 private:
@@ -13,25 +16,31 @@ private:
 	int numStati;
 
 	// numero di simboli osservabili
-	int numOss;
+	int numSimboli;
 
 	// true: HMM ergodico, false: HMM left-to-right
 	bool isErgodic;
+
+	// n° stati raggiungibili in avanti nel modello left-to-right
+	int forwardLimit;
 
 	// vettore probabilità stati iniziali
 	double* pi;
 
 	// matrice transizione: prob da stato i a stato j A[i][j]
-	double** A;
+	boost::numeric::ublas::matrix<double> A;
 
 	// matrice emissione: prob emettere simbolo k trovandosi in stato i B[i][k]
-	double** B;
+	boost::numeric::ublas::matrix<double> B;
 
     // inizializza come HMM left-to-right
-	void init_left_to_right(int span);
+	void init_left_to_right();
 
 	// inizializza come HMM ergodico
 	void init_ergodic();
+
+	// reset
+	void reset();
 
 	/**
 	 * Procedura forward.
@@ -39,7 +48,7 @@ private:
 	 * @param O la sequenza osservata
 	 * @return Array[Stato][Tempo]
 	 */
-	double** forwardProc(std::vector<int> O);
+	void forwardProc(std::vector<int> O, boost::numeric::ublas::matrix<double>& alpha);
 
 	/**
 	 * Riporta la probabilità della sequenza osservata.
@@ -47,7 +56,7 @@ private:
 	 * @param alpha Matrice delle variabili forward (calcolabile con forwardProc)
 	 * @return Probabilità della sequenza osservata O dato il modello lambda: P(O|lambda)
 	 */
-	double getProbability(double** alpha, int size);
+	double getProbability(const boost::numeric::ublas::matrix<double> &alpha);
 
 
 
@@ -62,7 +71,7 @@ public:
      * @param isErgodic Indica se il modello sarà ergodico (true) o left-to-right (false)
      * @param span Indica, nel modello left-to-right, quanti stati sono connessi a sx e dx con lo stato corrente (default=2)
 	 */
-	HMM(int stati, int osservazioni, bool isErgodic, int span = 2);
+	HMM(int stati, int osservazioni, bool ergodic, int span = 2);
 
 	/**
 	 * Addestra l'HMM a partire da un dataset di gesture
@@ -78,6 +87,8 @@ public:
 	 */
 	void trainMS(std::vector< std::vector<int> > trainingset);
 
+	void trainMS2(std::vector< std::vector<int> > trainingset);
+
 
 	/**
 	 * Procedura backward.
@@ -85,7 +96,7 @@ public:
 	 * @param O La sequenza osservata.
 	 * @return Array[Stato][Tempo]
 	 */
-	double** backwardProc(std::vector<int> O);
+	void backwardProc(std::vector<int> O, boost::numeric::ublas::matrix<double>& beta);
 
 
 	double getP(std::vector<int> O);
@@ -103,12 +114,12 @@ public:
     void load(char* filename);
 
 
-	double** getA();
-	double** getB();
+	boost::numeric::ublas::matrix<double> getA();
+	boost::numeric::ublas::matrix<double> getB();
 	double* getPi();
 
 	int getNumStati();
-	int getNumOss();
+	int getNumSimboli();
 
 };
 
