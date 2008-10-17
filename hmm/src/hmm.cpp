@@ -128,7 +128,7 @@ void HMM::train(std::vector< std::vector<int> > trainingset){
         /* aggiornamento pi */
         if(isErgodic){
 
-            double P = getProbability(alpha);
+            double P = getProbability(alpha, current.size());
 
             for(int i=0; i<numStati; i++)
                 pi[i] = alpha[i][1] * beta[i][1] / P;
@@ -211,7 +211,16 @@ void HMM::trainMS(std::vector< std::vector<int> > trainingset){
         double** alpha = forwardProc(current);
         double** beta = backwardProc(current);
 
-        double P = getProbability(alpha);
+        /*
+        std::cout<<"alpha"<<std::endl;
+        for(int i=0; i<numStati; i++){
+            for(int k=0; k<current.size(); k++)
+                std::cout<<alpha[i][k]<<" ";
+            std::cout<<std::endl;
+        }
+        */
+
+        double P = getProbability(alpha, current.size());
 
         /* aggiornamento pi */
         if(isErgodic){
@@ -234,8 +243,8 @@ void HMM::trainMS(std::vector< std::vector<int> > trainingset){
 
                 }//t
 
-                A_up[i][j] += up / P;
-                A_down[i][j] += down / P;
+                A_up[i][j] += up;// / P;
+                A_down[i][j] += down;// / P;
 
             }//j
         }//i
@@ -257,8 +266,8 @@ void HMM::trainMS(std::vector< std::vector<int> > trainingset){
                     down += alpha[j][t] * beta[j][t];
                 }//t
 
-                B_up[j][k] += up / P;
-                B_down[j][k] += down / P;
+                B_up[j][k] += up;// / P;
+                B_down[j][k] += down;// / P;
 
             }//k
         }//j
@@ -294,15 +303,19 @@ void HMM::trainMS(std::vector< std::vector<int> > trainingset){
 /**
  * @note: errore!!! numOss è sbagliato, bisogna usare ossSize (lunghezza osservazione)
  */
-double HMM::getProbability(double** alpha){
+double HMM::getProbability(double** alpha, int size){
 
     double prob = 0;
     for(int i=0; i<numStati; i++)
-        prob += alpha[i][numOss -1];
+        prob += alpha[i][size -1];
 
     return prob;
 }
 
+double HMM::getP(std::vector<int> O){
+    double** alpha = forwardProc(O);
+    return getProbability(alpha, O.size());
+}
 
 /**
  * @note Deallocare la memoria all'indirizzo beta una volta usata la funzione!!!
@@ -348,6 +361,15 @@ void HMM::print(){
         for(int j=0; j<numOss; j++)
             std::cout <<" " << B[i][j];
         std::cout<<std::endl;
+    }
+
+    std::cout<<"Somma per righe di B"<<std::endl;
+    for(int i=0; i<numStati; i++){
+        double row = 0;
+        for(int j=0; j<numOss; j++)
+            row += B[i][j];
+
+        std::cout<<"Riga "<<i<<": "<<row<<std::endl;
     }
 
 }

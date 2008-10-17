@@ -1,4 +1,4 @@
-
+#include <math.h>
 #include "chmm.h"
 
 cHMM::cHMM(int stati, bool isErgodic, int gaussPerMixture, int span){
@@ -105,10 +105,9 @@ void cHMM::forwardProc_scale(std::vector< Sample_3d > O, boost::numeric::ublas::
     }
 
     // debug
-    /*
-    std::cout<<"Alpha in forward_proc_scale dopo ciclo iniziale:"<<std::endl;
-    std::cout<<alpha<<std::endl;
-    */
+    //std::cout<<"Alpha in forward_proc_scale dopo ciclo iniziale:"<<std::endl;
+    //std::cout<<alpha<<std::endl;
+
 
     // scaling iniziale: formula 92a
     scale[0] = 0;
@@ -167,6 +166,16 @@ double cHMM::getProbabilityFromScale(double* scale, int size){
 	return 1/prob;
 }
 
+double cHMM::getLogProbabilityFromScale(double* scale, int size){
+    double p = 0;
+
+    for(int i=0; i<size; i++)
+        p += -log10(scale[i]);
+
+    return p;
+
+}
+
 
 void cHMM::backwardProc(std::vector< Sample_3d > O, boost::numeric::ublas::matrix<double> &beta, double* scale){
     int ossSize = O.size();
@@ -194,23 +203,20 @@ void cHMM::backwardProc(std::vector< Sample_3d > O, boost::numeric::ublas::matri
     }
 }
 
-void cHMM::train(std::vector< std::vector<Sample_3d> > trainingset){
+void cHMM::train(std::vector<Sample_3d> gesture){
 
-    for(int data=0; data<trainingset.size(); data++){
+        boost::numeric::ublas::matrix<double> alpha(numStati, gesture.size());
+        boost::numeric::ublas::matrix<double> beta(numStati, gesture.size());
 
-        std::vector<Sample_3d> current = trainingset.at(data);
-        boost::numeric::ublas::matrix<double> alpha(numStati, current.size());
-        boost::numeric::ublas::matrix<double> beta(numStati, current.size());
+        double scale[gesture.size()];
 
-        double scale[current.size()];
-
-        forwardProc_scale(current, alpha, scale);
-        backwardProc(current, beta, scale);
+        forwardProc_scale(gesture, alpha, scale);
+        backwardProc(gesture, beta, scale);
 
         // debug
         /*
         std::cout<< "scale:" << std::endl;
-        for(int d=0; d<current.size(); d++)
+        for(int d=0; d<gesture.size(); d++)
             std::cout<<scale[d]<<std::endl;
         */
 
@@ -225,7 +231,7 @@ void cHMM::train(std::vector< std::vector<Sample_3d> > trainingset){
         // aggiornamento pi
         if(isErgodic){
 
-            double P = getProbabilityFromScale(scale, (int)current.size());
+            double P = getProbabilityFromScale(scale, (int)gesture.size());
 
             for(int i=0; i<numStati; i++)
                 pi[i] = alpha(i,1) * beta(i,1) / P;
@@ -239,9 +245,9 @@ void cHMM::train(std::vector< std::vector<Sample_3d> > trainingset){
                 double up = 0;
                 double down = 0;
 
-                for(int t=0; t<current.size()-1; t++){
+                for(int t=0; t<gesture.size()-1; t++){
 
-                    up += alpha(i,t) * A(i,j) * B(j,current.at(t+1)) * beta(j,t+1);
+                    up += alpha(i,t) * A(i,j) * B(j,gesture.at(t+1)) * beta(j,t+1);
                     down += alpha(i,t) * beta(j,t);
 
                 }//t
@@ -254,8 +260,8 @@ void cHMM::train(std::vector< std::vector<Sample_3d> > trainingset){
         // aggiornamento parametri gaussiane
         // gamma[t][j][k]
         double ***gamma;
-        gamma = (double ***)malloc(current.size() * sizeof(double **));
-        for (int t = 0; t < current.size(); t++)
+        gamma = (double ***)malloc(gesture.size() * sizeof(double **));
+        for (int t = 0; t < gesture.size(); t++)
         {
             gamma[t] = (double **)malloc(numStati * sizeof(double *));
             for (int j = 0; j < numStati; j++)
@@ -265,7 +271,7 @@ void cHMM::train(std::vector< std::vector<Sample_3d> > trainingset){
         }
 
         // calcolo gamma
-        for(int t=0; t<current.size(); t++){ // ciclo sui sample della gesture
+        for(int t=0; t<gesture.size(); t++){ // ciclo sui sample della gesture
 
             double sum = 0;
             for(int j=0; j<numStati; j++){
@@ -277,8 +283,8 @@ void cHMM::train(std::vector< std::vector<Sample_3d> > trainingset){
                 for(int k=0; k<mixture_vect.at(j).howmany; k++){ // ciclo sulle componenti della mixture dello stato corrente
 
                     gamma[t][j][k] = alpha(j,t) * beta(j,t) * mixture_vect.at(j).weight[k] *
-                                        mixture_vect.at(j).components.at(k).pdf_3d(current.at(t)) /
-                                        ( sum * B(j, current.at(t)) );
+                                        mixture_vect.at(j).components.at(k).pdf_3d(gesture.at(t)) /
+                                        ( sum * B(j, gesture.at(t)) );
 
                 }
             }
@@ -294,7 +300,7 @@ void cHMM::train(std::vector< std::vector<Sample_3d> > trainingset){
 
                 double up = 0, down = 0;
 
-                for(int t=0; t<current.size(); t++){
+                for(int t=0; t<gesture.size(); t++){
 
                     up += gamma[t][j][k];
 
@@ -319,7 +325,7 @@ void cHMM::train(std::vector< std::vector<Sample_3d> > trainingset){
 
                 double down = 0;
 
-                for(int t=0; t<current.size(); t++){
+                for(int t=0; t<gesture.size(); t++){
 
                     down += gamma[t][j][k];
 
@@ -329,9 +335,9 @@ void cHMM::train(std::vector< std::vector<Sample_3d> > trainingset){
 
                     double up = 0;
 
-                    for(int t=0; t<current.size(); t++){
+                    for(int t=0; t<gesture.size(); t++){
 
-                        up += gamma[t][j][k] * current.at(t)[n];
+                        up += gamma[t][j][k] * gesture.at(t)[n];
 
                     }
 
@@ -350,7 +356,7 @@ void cHMM::train(std::vector< std::vector<Sample_3d> > trainingset){
 
                 double down = 0;
 
-                for(int t=0; t<current.size(); t++){
+                for(int t=0; t<gesture.size(); t++){
 
                     down += gamma[t][j][k];
 
@@ -360,11 +366,11 @@ void cHMM::train(std::vector< std::vector<Sample_3d> > trainingset){
 
                     double up = 0;
 
-                    for(int t=0; t<current.size(); t++){
+                    for(int t=0; t<gesture.size(); t++){
 
                         up += gamma[t][j][k] *
-                                (current.at(t)[n] - mixture_vect.at(j).components.at(k).mean[n]) *
-                                (current.at(t)[n] - mixture_vect.at(j).components.at(k).mean[n]);
+                                (gesture.at(t)[n] - mixture_vect.at(j).components.at(k).mean[n]) *
+                                (gesture.at(t)[n] - mixture_vect.at(j).components.at(k).mean[n]);
 
                     }
 
@@ -379,7 +385,7 @@ void cHMM::train(std::vector< std::vector<Sample_3d> > trainingset){
         // può servire check su covarianze, cioè se cov(i,i) < K, allora cov(i,i) = K
 
         // libera la memoria
-        for (int t = 0; t < current.size(); t++){
+        for (int t = 0; t < gesture.size(); t++){
             for (int j = 0; j < numStati; j++){
                 free(gamma[t][j]);
             }
@@ -387,7 +393,6 @@ void cHMM::train(std::vector< std::vector<Sample_3d> > trainingset){
         }
         free(gamma);
 
-    }//data
 }
 
 
@@ -427,7 +432,17 @@ void cHMM::trainMS(std::vector< std::vector<Sample_3d> > trainingset){
         forwardProc_scale(current, alpha, scale);
         backwardProc(current, beta, scale);
 
+        // debug
+        /*
+        std::cout<< "scale:" << std::endl;
+        for(int d=0; d<current.size(); d++)
+            std::cout<<scale[d]<<std::endl;
+        */
+
         double P = getProbabilityFromScale(scale, current.size());
+
+        //debug
+        std::cout<<"Probabilità: "<<P<<std::endl;
 
         // aggiornamento pi
         if(isErgodic){
@@ -456,6 +471,9 @@ void cHMM::trainMS(std::vector< std::vector<Sample_3d> > trainingset){
             }//j
         }//i
 
+        //debug
+        //std::cout<<A_up<<std::endl;
+        //std::cout<<A_down<<std::endl;
 
         // aggiornamento parametri gaussiane
         // gamma[t][j][k]
@@ -632,7 +650,8 @@ void cHMM::trainMS(std::vector< std::vector<Sample_3d> > trainingset){
 
     }
 
-
+    //debug
+    std::cout<<"Fine trainMS"<<std::endl;
 }
 
 

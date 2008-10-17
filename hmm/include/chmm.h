@@ -1,6 +1,6 @@
 
-#ifndef HMM_H_INCLUDED
-#define HMM_H_INCLUDED
+#ifndef CHMM_H_INCLUDED
+#define CHMM_H_INCLUDED
 
 #include <vector>
 #include <iostream>
@@ -71,6 +71,8 @@ private:
 
 	double getProbabilityFromScale(double* scale, int size);
 
+	double getLogProbabilityFromScale(double* scale, int size);
+
 	/**
 	 * Procedura backward.
 	 *
@@ -99,9 +101,9 @@ public:
 	/**
 	 * Addestra l'HMM a partire da un dataset di gesture
 	 *
-	 * @param trainingset Vettore delle gesture
+	 * @param gesture Gesture
 	 */
-	void train(std::vector< std::vector< Sample_3d > > trainingset);
+	void train(std::vector< Sample_3d > gesture);
 
     /**
 	 * Training con sequenze multiple
@@ -130,4 +132,4 @@ public:
 };
 
 
-#endif // HMM_H_INCLUDED
+#endif // CHMM_H_INCLUDED

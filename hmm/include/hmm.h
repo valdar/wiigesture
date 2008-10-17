@@ -47,7 +47,9 @@ private:
 	 * @param alpha Matrice delle variabili forward (calcolabile con forwardProc)
 	 * @return Probabilità della sequenza osservata O dato il modello lambda: P(O|lambda)
 	 */
-	double getProbability(double** alpha);
+	double getProbability(double** alpha, int size);
+
+
 
 
 public:
@@ -84,6 +86,9 @@ public:
 	 * @return Array[Stato][Tempo]
 	 */
 	double** backwardProc(std::vector<int> O);
+
+
+	double getP(std::vector<int> O);
 
     /**
      * Stampa a video il contenuto delle matrici A e B

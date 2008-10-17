@@ -48,8 +48,10 @@ double Gaussian_3d_mixture::mix_probability(Sample_3d x){
     return sum;
 }
 
+/*
 Gaussian_3d_mixture::~Gaussian_3d_mixture(){
 
     delete[] weight;
 }
+*/
 
