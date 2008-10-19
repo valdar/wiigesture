@@ -86,10 +86,13 @@ int main()
     vector<Sample_3d>* gesture = new vector<Sample_3d>();
 
     for(int j=0; j<size; j++){
+        /*
         double x = 2.0 + 1.0/(1 + rand()%10);
         double y = 2.0 + 1.0/(1 + rand()%10);
         double z = 2.0 + 1.0/(1 + rand()%10);
+        */
 
+        int x = 2.0, y = -1.8, z = 1.5;
         Sample_3d* s = new Sample_3d(x, y, z);
         gesture->push_back( *s );
     }
@@ -101,7 +104,7 @@ int main()
 
     cHMM hmm(numStati, isErgodic, 1);
 
-    hmm.trainMS(dataset);
+    //hmm.trainMS(dataset);
 
     //hmm.print();
 
@@ -110,8 +113,9 @@ int main()
 
     /*** test caso discreto ***/
 
-    int n_samples_disc = 5;
+    int n_samples_disc = 15;
     int numSimboli = 14;
+    int span = 1;
 
     vector< vector<int> > set;
     vector<int> g;
@@ -121,12 +125,17 @@ int main()
 
         int x;
 
-        if(i<30)
-            x = 1;
-        else if(30<=x<60)
-            x = 2;
+        if(i<25)
+            x = 7;
+        else if(25<=x<50)
+            x = 9;
+        else if(50<x<=75)
+            x = 7;
+        else if(75<x<=90)
+            x = 10;
         else
-            x = 3;
+            x = 11;
+
         g.push_back(x);
         //std::cout<<x<<std::endl;
     }
@@ -144,7 +153,7 @@ int main()
     set.push_back(g);
     */
 
-    HMM dhmm(numStati, numSimboli, isErgodic);
+    HMM dhmm(numStati, numSimboli, isErgodic, span);
 
     dhmm.print();
 

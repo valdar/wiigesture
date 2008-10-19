@@ -606,11 +606,12 @@ void cHMM::trainMS(std::vector< std::vector<Sample_3d> > trainingset){
 
                     //mixture_vect.at(j).components.at(k).cov(n,n) = up / down;
 
-                }
-            }
-        }
+                }//n
+            }//k
+        }//j
 
         // può servire check su covarianze, cioè se cov(i,i) < K, allora cov(i,i) = K
+
 
         // libera la memoria
         for (int t = 0; t < current.size(); t++){

@@ -324,15 +324,16 @@ void HMM::trainMS2(std::vector< std::vector<int> > trainingset){
 
                 for(int data=0; data<trainingset.size(); data++){
 
-                    this->reset();
                     double up = 0;
                     double down = 0;
                     std::vector<int> current = trainingset.at(data);
                     boost::numeric::ublas::matrix<double> alpha(numStati, current.size());
-                    forwardProc(current, alpha);
                     boost::numeric::ublas::matrix<double> beta(numStati, current.size());
+
+                    //this->reset();
+                    forwardProc(current, alpha);
                     backwardProc(current, beta);
-                    double P = getProbability(alpha);
+                    //double P = getProbability(alpha);
 
                     for(int t=0; t<current.size()-1; t++){
 
@@ -362,7 +363,7 @@ void HMM::trainMS2(std::vector< std::vector<int> > trainingset){
 
                 for(int data=0; data<trainingset.size(); data++){
 
-                    this->reset();
+                    //this->reset();
                     double up = 0;
                     double down = 0;
                     std::vector<int> current = trainingset.at(data);
@@ -370,7 +371,7 @@ void HMM::trainMS2(std::vector< std::vector<int> > trainingset){
                     forwardProc(current, alpha);
                     boost::numeric::ublas::matrix<double> beta(numStati, current.size());
                     backwardProc(current, beta);
-                    double P = getProbability(alpha);
+                    //double P = getProbability(alpha);
 
                     for(int t=0; t<current.size()-1; t++){
 
