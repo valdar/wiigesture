@@ -333,7 +333,7 @@ void HMM::trainMS2(std::vector< std::vector<int> > trainingset){
                     //this->reset();
                     forwardProc(current, alpha);
                     backwardProc(current, beta);
-                    double P = getProbability(alpha);
+                    //double P = getProbability(alpha);
 
                     for(int t=0; t<current.size()-1; t++){
 
@@ -371,7 +371,7 @@ void HMM::trainMS2(std::vector< std::vector<int> > trainingset){
                     forwardProc(current, alpha);
                     boost::numeric::ublas::matrix<double> beta(numStati, current.size());
                     backwardProc(current, beta);
-                    double P = getProbability(alpha);
+                    //double P = getProbability(alpha);
 
                     for(int t=0; t<current.size()-1; t++){
 
