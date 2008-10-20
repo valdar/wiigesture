@@ -2,6 +2,7 @@
 
 # Ignore objects
 *.o
+hmm/obj/*
 
 # Ignore code blocks workspace file
 *.workspace
@@ -20,3 +21,8 @@ hmm/bin/*
 
 # Ignore backups
 *~
+
+# Ignore Scons stuff
+config.log
+.sconf_temp
+.sconsign.dblite

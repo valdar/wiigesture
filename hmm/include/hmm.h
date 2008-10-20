@@ -120,6 +120,7 @@ public:
 
 	int getNumStati();
 	int getNumSimboli();
+	bool getIsErgodic();
 
 };
 

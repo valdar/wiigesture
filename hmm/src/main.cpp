@@ -50,7 +50,7 @@ int main()
     srand(time(0));
 
     // se size<2 si ha errore in backwardProc, e crash a riga 146 di hmm.cpp
-    int size = 100;// + rand()%100;
+    int size = 101;// + rand()%100;
     int numStati = 8;
     bool isErgodic = false;
 
@@ -166,3 +166,6 @@ int main()
 
     return 0;
 }
+
+
+

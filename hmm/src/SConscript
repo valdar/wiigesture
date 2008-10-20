@@ -1,0 +1,50 @@
+"""
+Scons build file for wiiGesture/src
+
+author : andrea tarocchi
+since : 20.10.2008
+version : 0.0.1
+"""
+
+Import('*') #import of environment from SConstruct script
+
+# per definire un nuovo eseguibile:
+# 1) scegliere un nome diverso da quelli presenti che chiameremo NAME
+# 2) creare NAME_files = Split("""filei.cpp
+#                                   :
+#                                   :
+#                                   file_n.cpp""") #NAME files
+#
+# 3) creare:
+# NAME_rel = env.Program('NAME', NAME_files)
+# cp_NAME_rel = Command("#build/Release/bin/NAME", "NAME", Move("$TARGET", "$SOURCE"))
+#
+# NAME_dbg = env.Program('NAME', NAME_files)
+# cp_NAME_dbg = Command("#build/Debug/bin/NAME", "NAME", Move("$TARGET", "$SOURCE"))
+#
+# 4) aggiungere in:
+# env.Alias('Release', [playerCounter_rel, cp_playerCounter_rel, NAME_rel, cp_NAME_rel])
+# env.Alias('Debug', [playerCounter_dbg, cp_playerCounter_dbg, NAME_dbg, cp_NAME_dbg])
+#
+# ovviamente sostituendo NAME col nome scelto!
+
+wiiGesture_files = Split("""Gaussian_3d.cpp
+                            Gaussian_3d_mixture.cpp
+                            chmm.cpp
+                            hmm.cpp
+                            main.cpp
+                            sample_3d.cpp""")
+
+#RELEASE
+wiiGesture_rel = env.Program('wiiGesture', wiiGesture_files)
+cp_wiiGesture_rel = Command("#bin/Release/wiiGesture", "wiiGesture", Move("$TARGET", "$SOURCE"))
+
+env.Alias('Release', [wiiGesture_rel, cp_wiiGesture_rel])
+
+#DEBUG
+wiiGesture_dbg = env.Program('wiiGesture', wiiGesture_files)
+cp_wiiGesture_dbg = Command("#bin/Debug/wiiGesture", "wiiGesture", [Delete("$TARGET"), Move("$TARGET", "$SOURCE")])
+
+env.Alias('Debug', [wiiGesture_dbg, cp_wiiGesture_dbg])
+
+Default(None)

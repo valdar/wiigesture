@@ -518,3 +518,7 @@ int HMM::getNumStati(){
 int HMM::getNumSimboli(){
     return numSimboli;
 }
+
+bool HMM::getIsErgodic(){
+    return isErgodic;
+}

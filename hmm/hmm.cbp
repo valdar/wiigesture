@@ -3,6 +3,7 @@
 	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="hmm" />
+		<Option makefile_is_custom="1" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
@@ -16,6 +17,12 @@
 					<Add directory="include" />
 					<Add directory="/usr/include/boost" />
 				</Compiler>
+				<MakeCommands>
+					<Build command="scons -Q $target" />
+					<CompileFile command="scons -Q $target $file" />
+					<Clean command="scons -Q $target clean" />
+					<DistClean command="scons -Q $target clean" />
+				</MakeCommands>
 			</Target>
 			<Target title="Release">
 				<Option output="bin/Release/hmm" prefix_auto="1" extension_auto="1" />
@@ -36,6 +43,7 @@
 			<Add directory="include" />
 			<Add directory="/usr/include/boost" />
 		</Compiler>
+		<Unit filename="SConstruct" />
 		<Unit filename="include/Gaussian_3d.h" />
 		<Unit filename="include/Gaussian_3d_mixture.h" />
 		<Unit filename="include/cgaussian.h" />
@@ -44,11 +52,13 @@
 		<Unit filename="include/sample_3d.h" />
 		<Unit filename="src/Gaussian_3d.cpp" />
 		<Unit filename="src/Gaussian_3d_mixture.cpp" />
+		<Unit filename="src/SConscript" />
 		<Unit filename="src/chmm.cpp" />
 		<Unit filename="src/hmm.cpp" />
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/sample_3d.cpp" />
->>>>>>> ce14fa995cc61527bcfaec4cc971cd7463cc0f35:hmm/hmm.cbp
+		<Unit filename="tests/SConscript" />
+		<Unit filename="tests/hmm_test.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />
