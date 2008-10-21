@@ -10,7 +10,7 @@ version : 0.0.1
 #Absolute path of BOOST's includes
 #if you use a relative (to this directory) path put a '#' at the start of the path.
 #if you use an absolute path the initial '#' symbol is not needed.
-BOOST_include = Split("""/usr/include""")
+BOOST_include = Split("""/home/lynwis/Projects/Libs/boost_1_36_0/""")
 
 #Absolute path of BOOST's libraries
 #if you use a relative (to this directory) path put a '#' at the start of the path.

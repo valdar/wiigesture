@@ -1,5 +1,5 @@
 #include "hmm.h"
-#define BOOST_TEST_MODULE HMM_test
+//#define BOOST_TEST_MODULE HMM_test
 
 BOOST_AUTO_TEST_SUITE( HMM_test )
 
