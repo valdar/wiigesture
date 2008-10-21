@@ -1,14 +1,7 @@
-#include <hmm.h>
-#define BOOST_TEST_MODULE hmm_test
+#include "hmm.h"
+#define BOOST_TEST_MODULE HMM_test
 
-#ifdef BOOST_TEST_DYN_LINK
-#include <boost/test/unit_test.hpp>
-#endif
-
-#ifndef BOOST_TEST_DYN_LINK
-#include <boost/test/included/unit_test.hpp>
-#endif
-
+BOOST_AUTO_TEST_SUITE( HMM_test )
 
 BOOST_AUTO_TEST_CASE( isErgodic_test )
 {
@@ -17,3 +10,4 @@ BOOST_AUTO_TEST_CASE( isErgodic_test )
     BOOST_REQUIRE( !test_object.getIsErgodic() );
 }
 
+BOOST_AUTO_TEST_SUITE_END()
