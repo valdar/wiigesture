@@ -1,8 +1,10 @@
+#include "gesture.h"
+
 Gesture::Gesture(){
     maxacc = minacc = 0;
 }
 
-Gesture::add(Sample_3d sample){
+void Gesture::add(Sample_3d sample){
 
     double mod = sample.getModule();
 
