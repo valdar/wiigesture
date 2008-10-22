@@ -1,6 +1,5 @@
-#define BOOST_TEST_MAIN wiiGesture
-
 #ifdef BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MAIN wiiGesture
 #include <boost/test/unit_test.hpp>
 #endif
 
