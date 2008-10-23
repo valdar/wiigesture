@@ -33,7 +33,9 @@ wiiGesture_files = Split("""Gaussian_3d.cpp
                             chmm.cpp
                             hmm.cpp
                             main.cpp
-                            sample_3d.cpp""")
+                            sample_3d.cpp
+                            gesture.cpp
+                            quantizer.cpp""")
 
 #RELEASE
 wiiGesture_rel = env.Program('wiiGesture', wiiGesture_files)
