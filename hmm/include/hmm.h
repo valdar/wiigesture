@@ -43,14 +43,6 @@ private:
 	void reset();
 
 	/**
-	 * Procedura forward.
-	 *
-	 * @param O la sequenza osservata
-	 * @return Array[Stato][Tempo]
-	 */
-	void forwardProc(std::vector<int> O, boost::numeric::ublas::matrix<double>& alpha);
-
-	/**
 	 * Riporta la probabilità della sequenza osservata.
 	 *
 	 * @param alpha Matrice delle variabili forward (calcolabile con forwardProc)
@@ -89,6 +81,13 @@ public:
 
 	void trainMS2(std::vector< std::vector<int> > trainingset);
 
+	/**
+	 * Procedura forward.
+	 *
+	 * @param O la sequenza osservata
+	 * @return Array[Stato][Tempo]
+	 */
+	void forwardProc(std::vector<int> O, boost::numeric::ublas::matrix<double>& alpha);
 
 	/**
 	 * Procedura backward.
