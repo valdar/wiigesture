@@ -21,16 +21,17 @@ private:
     // n° di centroidi
     int n_centroids;
 
-    // mappa dei centroidi
-    std::map<int, Sample_3d> map;
-
-    // algoritmo di clustering
-    void kmeans(Gesture gesture);
+    // centroidi
+    Sample_3d* centroids;
 
     // calcola la distanza tra 2 vettori
     double distance(Sample_3d a, Sample_3d b);
 
+    // inizializza per la gesture fornita
     void init(Gesture gesture);
+
+    // determina se due vettori di interi sono uguali
+    bool equalVectors(int* a, int* b, int size);
 
 public:
 
@@ -39,6 +40,8 @@ public:
 
     // riporta la sequenza discreta a partire dalla gesture
     int* getDiscreteSequence(Gesture gesture);
+
+    ~Quantizer();
 
 };
 

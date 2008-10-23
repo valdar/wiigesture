@@ -4,6 +4,7 @@ Quantizer::Quantizer(){
 
     n_centroids = 14;
     radius = 0;
+    centroids = new Sample_3d[n_centroids];
 
 }
 
@@ -29,63 +30,110 @@ void Quantizer::init(Gesture gesture){
     Sample_3d c12(0, cos(pi*5/4)*radius, sin(pi*5/4)*radius);
     Sample_3d c13(0, cos(pi*7/4)*radius, sin(pi*7/4)*radius);
 
-    map[0] = c0;
-    map[1] = c1;
-    map[2] = c2;
-    map[3] = c3;
-    map[4] = c4;
-    map[5] = c5;
-    map[6] = c6;
-    map[7] = c7;
-    map[8] = c8;
-    map[9] = c9;
-    map[10] = c10;
-    map[11] = c11;
-    map[12] = c12;
-    map[13] = c13;
+    centroids[0] = c0;
+    centroids[1] = c1;
+    centroids[2] = c2;
+    centroids[3] = c3;
+    centroids[4] = c4;
+    centroids[5] = c5;
+    centroids[6] = c6;
+    centroids[7] = c7;
+    centroids[8] = c8;
+    centroids[9] = c9;
+    centroids[10] = c10;
+    centroids[11] = c11;
+    centroids[12] = c12;
+    centroids[13] = c13;
 }
 
 // da terminare
 int* Quantizer::getDiscreteSequence(Gesture gesture){
 
     this->init(gesture);
-
     std::vector<Sample_3d> data = gesture.getData();
-
     int size = data.size();
 
     // associazioni (componente della gesture) - centroide
     int assoc[size];
 
-    // per ogni elemento della gesture:
-    for(int i=0; i<size; i++){
+    for(int i=0; i<size; i++)
+        assoc[i] = -1;
 
-        // minima distanza finora riscontrata
-        double min_dist = std::numeric_limits<double>::max();
-        // centroide a minima distanza
-        int centroid_count = -1;
+    bool modified;
+    int n_iter = 0;
 
-        // per ogni centroide:
-        for(int j=0; j<n_centroids; j++){
+    do{
+        // determina centroide a distanza minima per ogni vettore
+        modified = false;
 
-            // calcola la distanza dell'elemento dal centroide
-            double d = distance(data.at(i), map[j]);
+        for(int i=0; i<size; i++){
 
-            if(d < min_dist){
-                min_dist = d;
-                centroid_count++;
+            // minima distanza finora riscontrata
+            double min_dist = std::numeric_limits<double>::max();
+            // centroide a minima distanza
+            int centroid_count = -1;
+
+            for(int j=0; j<n_centroids; j++){
+
+                // calcola la distanza dell'elemento dal centroide
+                double d = distance(data.at(i), centroids[j]);
+
+                if(d < min_dist){
+                    min_dist = d;
+                    centroid_count++;
+                }
+
+            }//j
+
+            if(assoc[i] != centroid_count){
+                assoc[i] = centroid_count;
+                modified = true;
             }
 
-        }//j
-
-        assoc[i] = centroid_count;
+        }//i
 
 
-    }//i
+        // ricalcola posizione dei centroidi
+
+        // n° vettori associati a ciascun centroide
+        int numVectPerCentroid[n_centroids];
+
+        for(int i=0; i<n_centroids; i++){
+            numVectPerCentroid[i] = 0;
+
+            for(int j=0; j<size; j++){
+
+                if(assoc[j] == i){
+                    numVectPerCentroid[i]++;
+                    centroids[i] += data.at(j);
+                }
+
+            }//j
+
+            centroids[i] /= numVectPerCentroid[i];
+
+        }//i
+
+        n_iter++;
+    }
+    while(modified && n_iter < 10);
 }
 
 double Quantizer::distance(Sample_3d a, Sample_3d b){
 
-    return 0;
+    return sqrt( pow(a.getData()[0] - b.getData()[0], 2.0) + pow(a.getData()[1] - b.getData()[1], 2.0) + pow(a.getData()[2] - b.getData()[2], 2.0) );
+
+}
+
+
+bool Quantizer::equalVectors(int* a, int* b, int size){
+
+    return false;
+
+}
+
+Quantizer::~Quantizer(){
+
+    delete centroids;
 
 }

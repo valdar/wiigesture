@@ -20,3 +20,36 @@ double Sample_3d::operator[](int index){
     return data[index];
 }
 
+Sample_3d& Sample_3d::operator+=(Sample_3d a){
+
+    this->data[0] += a[0];
+    this->data[1] += a[1];
+    this->data[2] += a[2];
+
+    return *this;
+}
+
+Sample_3d Sample_3d::operator+(Sample_3d a){
+
+        Sample_3d b = *this;
+        return b += a;
+
+}
+
+Sample_3d& Sample_3d::operator/=(int a){
+
+    this->data[0] /= a;
+    this->data[1] /= a;
+    this->data[2] /= a;
+
+    return *this;
+
+}
+
+Sample_3d Sample_3d::operator/(int a){
+
+    Sample_3d b = *this;
+
+    return b /= a;
+}
+
