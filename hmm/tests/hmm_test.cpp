@@ -104,4 +104,41 @@ BOOST_AUTO_TEST_CASE( forwardProc_test ){
 
 }
 
+BOOST_AUTO_TEST_CASE( backwardProc_test ){
+
+    //dichiarazione HMM
+    HMM test_object(3, 3, false, 1);
+
+    //dichiarazione vettore d'ingresso
+    std::vector<int> O;
+    O.push_back(0);
+    O.push_back(0);
+    O.push_back(0);
+
+    //matrice beta prodotta dall'HMM
+    boost::numeric::ublas::matrix<double> BETA(3,3);
+    test_object.backwardProc(O, BETA);
+
+    //matrice beta calcolata con mathlab
+    boost::numeric::ublas::matrix<double> BETAtest(3,3);
+
+    BETAtest(0,0)=0.111111111111111;
+    BETAtest(1,0)=0.111111111111111;
+    BETAtest(2,0)=0.111111111111111;
+    BETAtest(0,1)=0.333333333333333;
+    BETAtest(1,1)=0.333333333333333;
+    BETAtest(2,1)=0.333333333333333;
+    BETAtest(0,2)=1.0;
+    BETAtest(1,2)=1.0;
+    BETAtest(2,2)=1.0;
+
+    //confronto
+    for(int i=0; i<BETA.size1(); i++){
+        for(int j=0; j<BETA.size2(); j++){
+            BOOST_CHECK_CLOSE(BETA(i,j),BETAtest(i,j),0.0000001);
+        }
+    }
+
+}
+
 BOOST_AUTO_TEST_SUITE_END()
