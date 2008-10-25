@@ -15,38 +15,23 @@ void Quantizer::init(Gesture gesture){
     double pi = M_PI;
 
     // inizializza i centroidi
-    Sample_3d c0(radius, 0, 0);
-    Sample_3d c1(cos(pi/4)*radius, 0, sin(pi/4)*radius);
-    Sample_3d c2(0, 0, radius);
-    Sample_3d c3(cos(pi*3/4)*radius, 0, sin(pi*3/4)*radius);
-    Sample_3d c4(-radius, 0, 0);
-    Sample_3d c5(cos(pi*5/4)*radius, 0, sin(pi*5/4)*radius);
-    Sample_3d c6(0, 0, -radius);
-    Sample_3d c7(cos(pi*7/4)*radius, 0, sin(pi*7/4)*radius);
-    Sample_3d c8(0, radius, 0);
-    Sample_3d c9(0, cos(pi/4)*radius, sin(pi/4)*radius);
-    Sample_3d c10(0, cos(pi*3/4)*radius, sin(pi*3/4)*radius);
-    Sample_3d c11(0, -radius, 0);
-    Sample_3d c12(0, cos(pi*5/4)*radius, sin(pi*5/4)*radius);
-    Sample_3d c13(0, cos(pi*7/4)*radius, sin(pi*7/4)*radius);
+    centroids[0] = Sample_3d(radius, 0, 0);
+    centroids[1] = Sample_3d(cos(pi/4)*radius, 0, sin(pi/4)*radius);
+    centroids[2] = Sample_3d(0, 0, radius);
+    centroids[3] = Sample_3d(cos(pi*3/4)*radius, 0, sin(pi*3/4)*radius);
+    centroids[4] = Sample_3d(-radius, 0, 0);
+    centroids[5] = Sample_3d(cos(pi*5/4)*radius, 0, sin(pi*5/4)*radius);
+    centroids[6] = Sample_3d(0, 0, -radius);
+    centroids[7] = Sample_3d(cos(pi*7/4)*radius, 0, sin(pi*7/4)*radius);
+    centroids[8] = Sample_3d(0, radius, 0);
+    centroids[9] = Sample_3d(0, cos(pi/4)*radius, sin(pi/4)*radius);
+    centroids[10] = Sample_3d(0, cos(pi*3/4)*radius, sin(pi*3/4)*radius);
+    centroids[11] = Sample_3d(0, -radius, 0);
+    centroids[12] = Sample_3d(0, cos(pi*5/4)*radius, sin(pi*5/4)*radius);
+    centroids[13] = Sample_3d(0, cos(pi*7/4)*radius, sin(pi*7/4)*radius);
 
-    centroids[0] = c0;
-    centroids[1] = c1;
-    centroids[2] = c2;
-    centroids[3] = c3;
-    centroids[4] = c4;
-    centroids[5] = c5;
-    centroids[6] = c6;
-    centroids[7] = c7;
-    centroids[8] = c8;
-    centroids[9] = c9;
-    centroids[10] = c10;
-    centroids[11] = c11;
-    centroids[12] = c12;
-    centroids[13] = c13;
 }
 
-// da terminare
 int* Quantizer::getDiscreteSequence(Gesture gesture){
 
     this->init(gesture);
@@ -115,25 +100,6 @@ int* Quantizer::getDiscreteSequence(Gesture gesture){
         for(int j=0; j<n_centroids; j++)
             centroids[j] /= numVectPerCentroid[j];
 
-
-        /*
-        for(int i=0; i<n_centroids; i++){
-            numVectPerCentroid[i] = 0;
-
-            for(int j=0; j<size; j++){
-
-                if(assoc[j] == i){
-                    numVectPerCentroid[i]++;
-                    centroids[i] += data.at(j);
-                }
-
-            }//j
-
-            centroids[i] /= numVectPerCentroid[i];
-
-        }//i
-        */
-
         n_iter++;
 
     }
@@ -145,14 +111,7 @@ int* Quantizer::getDiscreteSequence(Gesture gesture){
 
 double Quantizer::distance(Sample_3d a, Sample_3d b){
 
-    return sqrt( pow(a.getData()[0] - b.getData()[0], 2.0) + pow(a.getData()[1] - b.getData()[1], 2.0) + pow(a.getData()[2] - b.getData()[2], 2.0) );
-
-}
-
-
-bool Quantizer::equalVectors(int* a, int* b, int size){
-
-    return false;
+    return sqrt( pow(a[0] - b[0], 2.0) + pow(a[1] - b[1], 2.0) + pow(a[2] - b[2], 2.0) );
 
 }
 

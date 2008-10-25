@@ -17,7 +17,9 @@ Sample_3d::Sample_3d(double x, double y, double z){
 }
 
 double Sample_3d::operator[](int index){
+
     return data[index];
+
 }
 
 Sample_3d& Sample_3d::operator+=(Sample_3d a){
