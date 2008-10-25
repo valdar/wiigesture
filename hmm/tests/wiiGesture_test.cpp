@@ -9,3 +9,4 @@
 
 #include "hmm_test.cpp"
 #include "Gaussian_3d_test.cpp"
+#include "quantizer_test.cpp"

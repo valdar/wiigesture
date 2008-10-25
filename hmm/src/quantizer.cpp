@@ -54,10 +54,17 @@ int* Quantizer::getDiscreteSequence(Gesture gesture){
     int size = data.size();
 
     // associazioni (componente della gesture) - centroide
-    int assoc[size];
+    int* assoc = new int[size];
 
     for(int i=0; i<size; i++)
         assoc[i] = -1;
+
+    // n° vettori associati a ciascun centroide
+    int numVectPerCentroid[n_centroids];
+
+    for(int i=0; i<n_centroids; i++ )
+        numVectPerCentroid[i] = 0;
+
 
     bool modified;
     int n_iter = 0;
@@ -75,16 +82,19 @@ int* Quantizer::getDiscreteSequence(Gesture gesture){
 
             for(int j=0; j<n_centroids; j++){
 
-                // calcola la distanza dell'elemento dal centroide
+                // calcola la distanza dell'elemento dal centroide corrente
                 double d = distance(data.at(i), centroids[j]);
 
+                // se la nuova distanza è minore della minima finora riscontrata,
+                // aggiorna il centroide più vicino
                 if(d < min_dist){
                     min_dist = d;
-                    centroid_count++;
+                    centroid_count = j;
                 }
 
             }//j
 
+            // associa il sample al centroide più vicino
             if(assoc[i] != centroid_count){
                 assoc[i] = centroid_count;
                 modified = true;
@@ -95,9 +105,18 @@ int* Quantizer::getDiscreteSequence(Gesture gesture){
 
         // ricalcola posizione dei centroidi
 
-        // n° vettori associati a ciascun centroide
-        int numVectPerCentroid[n_centroids];
+        for(int i=0; i<size; i++){
 
+            numVectPerCentroid[assoc[i]]++;
+            centroids[assoc[i]] += data.at(i);
+
+        }
+
+        for(int j=0; j<n_centroids; j++)
+            centroids[j] /= numVectPerCentroid[j];
+
+
+        /*
         for(int i=0; i<n_centroids; i++){
             numVectPerCentroid[i] = 0;
 
@@ -113,10 +132,15 @@ int* Quantizer::getDiscreteSequence(Gesture gesture){
             centroids[i] /= numVectPerCentroid[i];
 
         }//i
+        */
 
         n_iter++;
+
     }
     while(modified && n_iter < 10);
+
+    return assoc;
+
 }
 
 double Quantizer::distance(Sample_3d a, Sample_3d b){

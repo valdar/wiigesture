@@ -64,6 +64,7 @@
 		<Unit filename="tests/Gaussian_3d_test.cpp" />
 		<Unit filename="tests/SConscript" />
 		<Unit filename="tests/hmm_test.cpp" />
+		<Unit filename="tests/quantizer_test.cpp" />
 		<Unit filename="tests/wiiGesture_test.cpp" />
 		<Extensions>
 			<code_completion />

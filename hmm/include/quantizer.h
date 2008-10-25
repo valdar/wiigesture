@@ -1,7 +1,6 @@
 #ifndef QUANTIZER_H_INCLUDED
 #define QUANTIZER_H_INCLUDED
 
-#include <map>
 #include <math.h>
 #include <limits>
 #include "gesture.h"
