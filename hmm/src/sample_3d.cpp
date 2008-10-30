@@ -5,6 +5,7 @@ Sample_3d::Sample_3d()
 {
     for(int i=0; i<3; i++)
         data[i] = 0;
+
     module = 0;
 }
 

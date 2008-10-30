@@ -42,35 +42,29 @@ private:
 	// reset
 	void reset();
 
-	/**
-	 * Riporta la probabilità della sequenza osservata.
-	 *
-	 * @param alpha Matrice delle variabili forward (calcolabile con forwardProc)
-	 * @return Probabilità della sequenza osservata O dato il modello lambda: P(O|lambda)
-	 */
+    // riporta la probabilità della sequenza osservata a partire dagli alpha
 	double getProbability(const boost::numeric::ublas::matrix<double> &alpha);
-
-
 
 
 public:
 
 	/**
-	 * Inizializza l'HMM.
+	 * Costruttore.
 	 *
 	 * @param stati Numero di stati
-	 * @param osservazionu Numero di simboli osservabili
-     * @param isErgodic Indica se il modello sarà ergodico (true) o left-to-right (false)
+	 * @param simboli Numero di simboli possibili
+     * @param ergodic Indica se il modello sarà ergodico (true) o left-to-right (false)
      * @param span Indica, nel modello left-to-right, quanti stati sono connessi a sx e dx con lo stato corrente (default=2)
 	 */
-	HMM(int stati, int osservazioni, bool ergodic, int span = 2);
+	HMM(int stati, int simboli, bool ergodic = false, int span = 2);
 
 	/**
 	 * Addestra l'HMM a partire da un dataset di gesture
 	 *
 	 * @param trainingset Vettore delle gesture
-	 */
+	 *
 	void train(std::vector< std::vector<int> > trainingset);
+	*/
 
     /**
 	 * Training con sequenze multiple
@@ -78,8 +72,6 @@ public:
 	 * @param trainingset Vettore delle gesture
 	 */
 	void trainMS(std::vector< std::vector<int> > trainingset);
-
-	void trainMS2(std::vector< std::vector<int> > trainingset);
 
 	/**
 	 * Procedura forward.
@@ -97,7 +89,12 @@ public:
 	 */
 	void backwardProc(std::vector<int> O, boost::numeric::ublas::matrix<double>& beta);
 
-
+    /**
+     * Riporta la probabilità della gesture O.
+     *
+     * @param O Gesture discretizzata
+	 * @return Probabilità della gesture O dato il modello lambda: P(O|lambda)
+     */
 	double getP(std::vector<int> O);
 
     /**
@@ -116,7 +113,6 @@ public:
 	boost::numeric::ublas::matrix<double> getA();
 	boost::numeric::ublas::matrix<double> getB();
 	double* getPi();
-
 	int getNumStati();
 	int getNumSimboli();
 	bool getIsErgodic();

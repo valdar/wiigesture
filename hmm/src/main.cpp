@@ -157,7 +157,7 @@ int main()
 
     dhmm.print();
 
-    dhmm.trainMS2(set);
+    dhmm.trainMS(set);
 
     dhmm.print();
 

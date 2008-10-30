@@ -84,9 +84,7 @@ int* Quantizer::getDiscreteSequence(Gesture gesture){
                 assoc[i] = centroid_count;
                 modified = true;
             }
-
         }//i
-
 
         // ricalcola posizione dei centroidi
 

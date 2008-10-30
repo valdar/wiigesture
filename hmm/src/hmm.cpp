@@ -1,9 +1,9 @@
 #include "hmm.h"
 
-HMM::HMM(int stati, int osservazioni, bool ergodic, int span){
+HMM::HMM(int stati, int simboli, bool ergodic, int span){
 
     this->numStati = stati;
-    this->numSimboli = osservazioni;
+    this->numSimboli = simboli;
     this->forwardLimit = span;
     this->isErgodic = ergodic;
 
@@ -84,11 +84,6 @@ void HMM::reset(){
     else
         init_left_to_right();
 }
-
-
-/**
- * @note Deallocare la memoria all'indirizzo alpha una volta usata la funzione!!!
- */
 
 void HMM::forwardProc(std::vector<int> O, boost::numeric::ublas::matrix<double>& alpha){
 
@@ -292,7 +287,7 @@ void HMM::trainMS(std::vector< std::vector<int> > trainingset){
 }
 */
 
-void HMM::trainMS2(std::vector< std::vector<int> > trainingset){
+void HMM::trainMS(std::vector< std::vector<int> > trainingset){
 
     boost::numeric::ublas::matrix<double> A_new(numStati, numStati);
     boost::numeric::ublas::matrix<double> B_new(numStati, numSimboli);
