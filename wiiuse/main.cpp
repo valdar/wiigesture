@@ -259,5 +259,7 @@ int main(int argc, char** argv) {
 	 */
 	wiiuse_shutdown();
 
+	printf("saluti a tutti!");
+
 	return 0;
 }
