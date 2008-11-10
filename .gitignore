@@ -15,6 +15,7 @@ hmm/obj/*
 
 # Ignore binaries
 hmm/bin/*
+wiiuse/bin/*
 
 # Ignore linux directory files
 .directory
