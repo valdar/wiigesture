@@ -55,8 +55,10 @@ int main(int argc, char** argv){
             num >> value;
             temp[n_word%module] = value;
 
-            if( (n_word % module) == 2)
+            if( (n_word % module) == 2){
+                //temp[2] = temp[2] - 1;
                 dataset.at(count-1).add(Sample_3d(temp));
+            }
 
             n_word++;
             //std::cout <<"ciao"<<std::endl;
