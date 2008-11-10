@@ -5,6 +5,7 @@ Sample_3d::Sample_3d()
 {
     for(int i=0; i<3; i++)
         data[i] = 0;
+
     module = 0;
 }
 
@@ -16,8 +17,18 @@ Sample_3d::Sample_3d(double x, double y, double z){
     module = sqrt(pow(x, 2.0) + pow(y, 2.0) + pow(z, 2.0));
 }
 
+Sample_3d::Sample_3d(double* data_3d){
+    data[0] = data_3d[0];
+    data[1] = data_3d[1];
+    data[2] = data_3d[2];
+
+    module = sqrt(pow(data[0], 2.0) + pow(data[1], 2.0) + pow(data[2], 2.0));
+}
+
 double Sample_3d::operator[](int index){
+
     return data[index];
+
 }
 
 Sample_3d& Sample_3d::operator+=(Sample_3d a){

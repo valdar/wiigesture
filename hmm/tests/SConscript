@@ -33,7 +33,9 @@ env.Append(CPPDEFINES = 'BOOST_TEST_DYN_LINK')
 test_wiiGesture_files = Split("""wiiGesture_test.cpp
                                 ../src/hmm.cpp
                                 ../src/Gaussian_3d.cpp
-                                ../src/sample_3d.cpp""")
+                                ../src/sample_3d.cpp
+                                ../src/quantizer.cpp
+                                ../src/gesture.cpp""")
 
 #RELEASE
 test_wiiGesture_rel = env.Program('test_wiiGesture', test_wiiGesture_files)

@@ -1,7 +1,6 @@
 #ifndef QUANTIZER_H_INCLUDED
 #define QUANTIZER_H_INCLUDED
 
-#include <map>
 #include <math.h>
 #include <limits>
 #include "gesture.h"
@@ -30,15 +29,13 @@ private:
     // inizializza per la gesture fornita
     void init(Gesture gesture);
 
-    // determina se due vettori di interi sono uguali
-    bool equalVectors(int* a, int* b, int size);
-
 public:
 
     // costruttore
     Quantizer();
 
-    // riporta la sequenza discreta a partire dalla gesture
+    // calcola la sequenza discreta a partire dalla gesture
+    // ritorna un vettore di interi con valori da 0 a 13
     int* getDiscreteSequence(Gesture gesture);
 
     ~Quantizer();

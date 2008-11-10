@@ -2,19 +2,24 @@
 #define GESTURE_H_INCLUDED
 
 #include <vector>
+#include <limits>
 #include "sample_3d.h"
 
 class Gesture{
 
 private:
 
+    // massima accelerazione (in modulo) tra le componenti della gesture
     double maxacc;
+    // minima accelerazione
     double minacc;
+    // componenti della gesture
     std::vector<Sample_3d> data;
 
 public:
 
     Gesture();
+    Gesture(std::vector<Sample_3d> data);
     void add(Sample_3d sample);
 
     int getSize() { return data.size(); }
@@ -22,6 +27,7 @@ public:
     Sample_3d getSample(int index) { return data.at(index); }
     double getMaxacc() { return maxacc; }
     double getMinacc() { return minacc; }
+
 };
 
 #endif

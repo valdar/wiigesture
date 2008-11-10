@@ -458,7 +458,7 @@ void cHMM::trainMS(std::vector< std::vector<Sample_3d> > trainingset){
                 double up = 0;
                 double down = 0;
 
-                for(int t=0; t<current.size()-2; t++){
+                for(int t=0; t<current.size()-1; t++){
 
                     up += alpha(i,t) * A(i,j) * B(j,current.at(t+1)) * beta(j,t+1);
                     down += alpha(i,t) * beta(j,t);

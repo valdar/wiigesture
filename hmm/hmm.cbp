@@ -12,6 +12,8 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option parameters="./data.txt ./disc.txt" />
+				<Option host_application="bin/Debug/discretizzazione" />
 				<Compiler>
 					<Add option="-g" />
 					<Add directory="include" />
@@ -46,7 +48,7 @@
 		<Unit filename="SConstruct" />
 		<Unit filename="include/Gaussian_3d.h" />
 		<Unit filename="include/Gaussian_3d_mixture.h" />
-		<Unit filename="include/cgaussian.h" />
+		<Unit filename="include/buffer.h" />
 		<Unit filename="include/chmm.h" />
 		<Unit filename="include/gesture.h" />
 		<Unit filename="include/hmm.h" />
@@ -56,6 +58,7 @@
 		<Unit filename="src/Gaussian_3d_mixture.cpp" />
 		<Unit filename="src/SConscript" />
 		<Unit filename="src/chmm.cpp" />
+		<Unit filename="src/discretizzazione.cpp" />
 		<Unit filename="src/gesture.cpp" />
 		<Unit filename="src/hmm.cpp" />
 		<Unit filename="src/main.cpp" />
@@ -64,6 +67,7 @@
 		<Unit filename="tests/Gaussian_3d_test.cpp" />
 		<Unit filename="tests/SConscript" />
 		<Unit filename="tests/hmm_test.cpp" />
+		<Unit filename="tests/quantizer_test.cpp" />
 		<Unit filename="tests/wiiGesture_test.cpp" />
 		<Extensions>
 			<code_completion />
