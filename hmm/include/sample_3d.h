@@ -11,6 +11,7 @@ class Sample_3d{
     public:
         Sample_3d();
         Sample_3d(double x, double y, double z);
+        Sample_3d(double* data_3d);
         double* getData() { return data; }
         double getModule() { return module; }
 

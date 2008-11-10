@@ -2,6 +2,7 @@
 #define GESTURE_H_INCLUDED
 
 #include <vector>
+#include <limits>
 #include "sample_3d.h"
 
 class Gesture{
@@ -18,6 +19,7 @@ private:
 public:
 
     Gesture();
+    Gesture(std::vector<Sample_3d> data);
     void add(Sample_3d sample);
 
     int getSize() { return data.size(); }

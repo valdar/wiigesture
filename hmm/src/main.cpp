@@ -104,11 +104,11 @@ int main()
 
     cHMM hmm(numStati, isErgodic, 1);
 
-    //hmm.trainMS(dataset);
+    hmm.trainMS(dataset);
 
-    //hmm.print();
+    hmm.print();
 
-    //std::cout<<hmm.getA()<<std::endl;
+    std::cout<<hmm.getA()<<std::endl;
 
 
     /*** test caso discreto ***/

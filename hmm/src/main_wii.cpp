@@ -14,6 +14,7 @@ extern "C" {
 #include <iostream>
 #include <fstream>
 
+
 std::ofstream outfile;
 
 /**
@@ -25,7 +26,6 @@ std::ofstream outfile;
  *	event occurs on the specified wiimote.
  */
 void handle_event(struct wiimote_t* wm) {
-
 
     if (wm->btns) {
 		/*
@@ -51,7 +51,6 @@ void handle_event(struct wiimote_t* wm) {
 		if(wm->btns){
 		    if(IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_A)){
                 printf("INIZIO GESTURE\n");
-                outfile << "<gesture>" << std::endl;
 		    }
 		}
 
@@ -61,14 +60,12 @@ void handle_event(struct wiimote_t* wm) {
                 printf("wiimote Y acc   = %f\n", wm->gforce.y);
                 printf("wiimote Z acc   = %f\n", wm->gforce.z);
 
-                outfile << wm->gforce.x << " " << wm->gforce.y << " " << wm->gforce.z << std::endl;
 		    }
         }
 
         if(wm->btns_released){
             if(IS_RELEASED(wm, WIIMOTE_BUTTON_A)){
                 printf("FINE GESTURE\n");
-                outfile << "</gesture>" << std::endl;
 		    }
 		}
 	}
@@ -111,7 +108,6 @@ void handle_ctrl_status(struct wiimote_t* wm, int attachment, int speaker, int i
  *	if the connection is interrupted.
  */
 void handle_disconnect(wiimote* wm) {
-    outfile.close();
 	printf("\n\n--- DISCONNECTED [wiimote id %i] ---\n", wm->unid);
 }
 
@@ -131,9 +127,9 @@ void handle_disconnect(wiimote* wm) {
 int main(int argc, char** argv) {
 
     if(argc < 2)
-        return 1;
+        exit(1);
 
-    outfile.open(argv[1]);
+
 
 	/*
 
@@ -274,3 +270,4 @@ int main(int argc, char** argv) {
 
 	return 0;
 }
+
