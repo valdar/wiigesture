@@ -42,6 +42,9 @@ discretizzazione_files = Split("""discretizzazione.cpp
                                     sample_3d.cpp
                                     quantizer.cpp""")
 
+train_files = Split("""train.cpp
+                        hmm.cpp""")
+
 #RELEASE
 wiiGesture_rel = env.Program('wiiGesture', wiiGesture_files)
 cp_wiiGesture_rel = Command("#bin/Release/wiiGesture", "wiiGesture", Move("$TARGET", "$SOURCE"))
@@ -49,7 +52,10 @@ cp_wiiGesture_rel = Command("#bin/Release/wiiGesture", "wiiGesture", Move("$TARG
 discretizzazione_rel = env.Program('discretizzazione', discretizzazione_files)
 cp_discretizzazione_rel = Command("#bin/Release/discretizzazione", "discretizzazione", Move("$TARGET", "$SOURCE"))
 
-env.Alias('Release', [wiiGesture_rel, cp_wiiGesture_rel, discretizzazione_rel, cp_discretizzazione_rel])
+train_rel = env.Program('train', train_files)
+cp_train_rel = Command("#bin/Release/train", "train", Move("$TARGET", "$SOURCE"))
+
+env.Alias('Release', [wiiGesture_rel, cp_wiiGesture_rel, discretizzazione_rel, cp_discretizzazione_rel, train_rel, cp_train_rel])
 
 #DEBUG
 wiiGesture_dbg = env.Program('wiiGesture', wiiGesture_files)
@@ -58,6 +64,9 @@ cp_wiiGesture_dbg = Command("#bin/Debug/wiiGesture", "wiiGesture", [Delete("$TAR
 discretizzazione_dbg = env.Program('discretizzazione', discretizzazione_files)
 cp_discretizzazione_dbg = Command("#bin/Debug/discretizzazione", "discretizzazione", [Delete("$TARGET"), Move("$TARGET", "$SOURCE")])
 
-env.Alias('Debug', [wiiGesture_dbg, cp_wiiGesture_dbg, discretizzazione_dbg, cp_discretizzazione_dbg])
+train_dbg = env.Program('train', train_files)
+cp_train_dbg = Command("#bin/Debug/train", "train", [Delete("$TARGET"), Move("$TARGET", "$SOURCE")])
+
+env.Alias('Debug', [wiiGesture_dbg, cp_wiiGesture_dbg, discretizzazione_dbg, cp_discretizzazione_dbg, train_dbg, cp_train_dbg])
 
 Default(None)

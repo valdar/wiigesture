@@ -38,43 +38,52 @@ int main(int argc, char** argv){
 
     while(!in.eof()){
 
+        // acquisisce la prima parola FORMATTATA
         in >> word;
-        std::cout << word << std::endl;
 
-        if(word == "<gesture>"){
         // inizio di una gesture
+        if(word == "<gesture>"){
+
+            // crea una nuova gesture nel dataset
             dataset.push_back(Gesture());
+
+            // incrementa il n° di gesture processate
             count++;
 
         }
+        // fase acquisizione dati della gesture
         else if(word != "<gesture>" && word != "</gesture>"){
 
-        // dati della gesture
+            // converte la parola acquisita in mumero
             std::istringstream num(word);
             double value;
             num >> value;
+
+            // memorizza il numero
             temp[n_word%module] = value;
 
+            // se ho memorizzato una terna di numeri, crea da essi un Sample_3d
+            // e inseriscilo nella gesture corrente
             if( (n_word % module) == 2){
                 //temp[2] = temp[2] - 1;
                 dataset.at(count-1).add(Sample_3d(temp));
             }
 
+            // incrementa il contatore delle parole processate
             n_word++;
-            //std::cout <<"ciao"<<std::endl;
 
         }
-        else if(word == "</gesture>"){
         // fine di una gesture e sua discretizzazione
+        else if(word == "</gesture>"){
 
         Quantizer q;
-
         int current_size = dataset.at(count-1).getSize();
 
+        // calcola la sequenza discreta a partire dalla gesture
         int* disc_seq = q.getDiscreteSequence(dataset.at(count-1));
-
         discrete_dataset.push_back(disc_seq);
 
+        // salva la gesture discreta sul file di output
         for(int i=0; i<current_size -1; i++){
 
             out << disc_seq[i] << " ";
@@ -83,6 +92,7 @@ int main(int argc, char** argv){
 
         out << disc_seq[current_size-1] << std::endl;
 
+        // azzera il contatore delle parole processate
         n_word = 0;
 
         }
