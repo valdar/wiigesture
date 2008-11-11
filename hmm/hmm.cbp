@@ -12,8 +12,8 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="./data.txt ./disc.txt" />
-				<Option host_application="bin/Debug/discretizzazione" />
+				<Option parameters="bin/Debug/folds/dxsx_train.txt bin/Debug/folds/dxsx_valid.txt" />
+				<Option host_application="bin/Debug/train" />
 				<Compiler>
 					<Add option="-g" />
 					<Add directory="include" />

@@ -84,13 +84,16 @@ int main(int argc, char** argv){
         discrete_dataset.push_back(disc_seq);
 
         // salva la gesture discreta sul file di output
+
+        out << "<gesture>" << std::endl;
+
         for(int i=0; i<current_size -1; i++){
 
             out << disc_seq[i] << " ";
 
         }
 
-        out << disc_seq[current_size-1] << std::endl;
+        out << disc_seq[current_size-1] << std::endl << "</gesture>" << std::endl;
 
         // azzera il contatore delle parole processate
         n_word = 0;
