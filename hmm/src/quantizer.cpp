@@ -101,7 +101,7 @@ int* Quantizer::getDiscreteSequence(Gesture gesture){
         n_iter++;
 
     }
-    while(modified && n_iter < 10);
+    while(modified && n_iter < 100);
 
     return assoc;
 
