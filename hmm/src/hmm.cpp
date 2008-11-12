@@ -244,7 +244,7 @@ void HMM::trainMS(std::vector< std::vector<int> > trainingset){
                 double up = 0;
                 double down = 0;
 
-                for(int t=0; t<current.size()-1; t++){
+                for(int t=0; t<current.size(); t++){
 
                     if(current.at(t) == k)
                         up += alpha[j][t] * beta[j][t];
@@ -368,7 +368,7 @@ void HMM::trainMS(std::vector< std::vector<int> > trainingset){
                     backwardProc(current, beta);
                     //double P = getProbability(alpha);
 
-                    for(int t=0; t<current.size()-1; t++){
+                    for(int t=0; t<current.size(); t++){
 
                         if(current.at(t) == k)
                             up += alpha(j,t) * beta(j,t);
