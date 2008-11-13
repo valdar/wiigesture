@@ -53,6 +53,7 @@
 		<Unit filename="include/gesture.h" />
 		<Unit filename="include/hmm.h" />
 		<Unit filename="include/quantizer.h" />
+		<Unit filename="include/quantizer2.h" />
 		<Unit filename="include/sample_3d.h" />
 		<Unit filename="src/Gaussian_3d.cpp" />
 		<Unit filename="src/Gaussian_3d_mixture.cpp" />
@@ -63,6 +64,7 @@
 		<Unit filename="src/hmm.cpp" />
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/quantizer.cpp" />
+		<Unit filename="src/quantizer2.cpp" />
 		<Unit filename="src/sample_3d.cpp" />
 		<Unit filename="src/train.cpp" />
 		<Unit filename="tests/Gaussian_3d_test.cpp" />

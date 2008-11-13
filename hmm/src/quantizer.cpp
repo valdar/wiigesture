@@ -38,7 +38,7 @@ int* Quantizer::getDiscreteSequence(Gesture gesture){
     std::vector<Sample_3d> data = gesture.getData();
     int size = data.size();
 
-    // associazioni (componente della gesture) - centroide
+    // associazioni (componente della gesture) <-> centroide
     int* assoc = new int[size];
 
     for(int i=0; i<size; i++)

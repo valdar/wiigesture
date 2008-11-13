@@ -5,8 +5,12 @@
 #include <sstream>
 
 #include "quantizer.h"
+#include "quantizer2.h"
 #include "gesture.h"
 
+// uso: prog_name <input_file> <output_file>
+// dove <input_file> contiene le gesture da discretizzare
+//      <output_file> conterrà le gesture discrete
 
 int main(int argc, char** argv){
 
@@ -76,7 +80,7 @@ int main(int argc, char** argv){
         // fine di una gesture e sua discretizzazione
         else if(word == "</gesture>"){
 
-        Quantizer q;
+        Quantizer2 q;
         int current_size = dataset.at(count-1).getSize();
 
         // calcola la sequenza discreta a partire dalla gesture
