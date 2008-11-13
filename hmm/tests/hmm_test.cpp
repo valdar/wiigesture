@@ -141,4 +141,70 @@ BOOST_AUTO_TEST_CASE( backwardProc_test ){
 
 }
 
+BOOST_AUTO_TEST_CASE( train_single_sequence_test ){
+
+    //dichiarazione HMM
+    HMM test_object(3, 3, false, 1);
+
+    //dichiarazione vettore d'ingresso
+    std::vector<int> O;
+    O.push_back(0);
+    O.push_back(0);
+    O.push_back(0);
+    O.push_back(0);
+    // necessita di almeno 4 componenti perchè l'HMM ha 3 stati!!!
+
+    //aggiornamento amtrici A e B tramite train
+    std::vector<std::vector<int> > gestureSet;
+    gestureSet.push_back(O);
+    test_object.trainMS(gestureSet);
+
+    //matrice A aggiornata (calcolata con mathlab)
+    boost::numeric::ublas::matrix<double> Anew(3,3);
+
+    Anew(0,0)=0.500000000000000;
+    Anew(1,0)=0.0;
+    Anew(2,0)=0.0;
+    Anew(0,1)=0.500000000000000;
+    Anew(1,1)=0.500000000000000;
+    Anew(2,1)=0.0;
+    Anew(0,2)=0.0;
+    Anew(1,2)=0.500000000000000;
+    Anew(2,2)=1.0;
+
+    //matrice B aggiornata (calcolata con mathlab)
+    boost::numeric::ublas::matrix<double> Bnew(3,3);
+
+    Bnew(0,0)=1.0;
+    Bnew(1,0)=1.0;
+    Bnew(2,0)=1.0;
+    Bnew(0,1)=0.0;
+    Bnew(1,1)=0.0;
+    Bnew(2,1)=0.0;
+    Bnew(0,2)=0.0;
+    Bnew(1,2)=0.0;
+    Bnew(2,2)=0.0;
+
+    //confronto
+    boost::numeric::ublas::matrix<double> Ahmm(3,3);
+    Ahmm = test_object.getA();
+
+    boost::numeric::ublas::matrix<double> Bhmm(3,3);
+    Bhmm = test_object.getB();
+
+    for(int i=0; i<Ahmm.size1(); i++){
+        for(int j=0; j<Ahmm.size2(); j++){
+            BOOST_CHECK_CLOSE(Ahmm(i,j),Anew(i,j),0.0000001);
+        }
+    }
+
+    for(int i=0; i<Bhmm.size1(); i++){
+        for(int j=0; j<Bhmm.size2(); j++){
+            BOOST_CHECK_CLOSE(Bhmm(i,j),Bnew(i,j),0.0000001);
+        }
+    }
+
+
+}
+
 BOOST_AUTO_TEST_SUITE_END()
