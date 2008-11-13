@@ -7,7 +7,7 @@ Gaussian_3d_mixture::Gaussian_3d_mixture(int howmany, bool zero){
     if(!zero){
         for(int i=0; i<this->howmany; i++){
             weight[i] = (double) 1.0 / this->howmany;
-            components.push_back(*(new Gaussian_3d(true)));
+            components.push_back(Gaussian_3d(true));
         }
     }
 
@@ -26,7 +26,7 @@ Gaussian_3d_mixture::Gaussian_3d_mixture(int howmany, double* weight){
     this->howmany = howmany;
     this->weight = weight;
      for(int i=0; i<this->howmany; i++){
-        components.push_back(*(new Gaussian_3d(true)));
+        components.push_back(Gaussian_3d(true));
     }
 }
 
@@ -48,10 +48,10 @@ double Gaussian_3d_mixture::mix_probability(Sample_3d x){
     return sum;
 }
 
-/*
+
 Gaussian_3d_mixture::~Gaussian_3d_mixture(){
 
     delete[] weight;
 }
-*/
+
 

@@ -517,3 +517,7 @@ int HMM::getNumSimboli(){
 bool HMM::getIsErgodic(){
     return isErgodic;
 }
+
+HMM::~HMM(){
+    delete[] pi;
+}

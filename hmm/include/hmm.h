@@ -117,6 +117,8 @@ public:
 	int getNumSimboli();
 	bool getIsErgodic();
 
+	~HMM();
+
 };
 
 

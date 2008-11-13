@@ -19,7 +19,7 @@ public:
 
     double mix_probability(Sample_3d x);
 
-    //~Gaussian_3d_mixture();
+    ~Gaussian_3d_mixture();
 
 };
 

@@ -115,6 +115,6 @@ double Quantizer::distance(Sample_3d a, Sample_3d b){
 
 Quantizer::~Quantizer(){
 
-    delete centroids;
+    delete[] centroids;
 
 }
