@@ -32,33 +32,122 @@ void Quantizer2::init(Gesture gesture){
 
 }
 
+
+void Quantizer2::train(Gesture gesture){
+
+    this->init(gesture);
+    std::vector<Sample_3d> data = gesture.getData();
+    int size = data.size();
+
+     // associazioni (componente della gesture) <-> centroide
+    int* assoc = new int[size];
+    for(int i=0; i<size; i++)
+        assoc[i] = -1;
+
+    // n° vettori associati a ciascun centroide
+    int numVectPerCentroid[n_centroids];
+    for(int i=0; i<n_centroids; i++ )
+        numVectPerCentroid[i] = 0;
+
+    bool modified;
+    int n_iter = 0;
+
+     do{
+        // determina centroide a distanza minima per ogni vettore
+        modified = false;
+
+        for(int i=0; i<size; i++){
+
+            // minima distanza finora riscontrata
+            double min_dist = std::numeric_limits<double>::max();
+            // centroide a minima distanza
+            int centroid_count = -1;
+
+            for(int j=0; j<n_centroids; j++){
+
+                // calcola la distanza dell'elemento dal centroide corrente
+                double d = distance(data.at(i), centroids[j]);
+
+                // se la nuova distanza è minore della minima finora riscontrata,
+                // aggiorna il centroide più vicino
+                if(d < min_dist){
+                    min_dist = d;
+                    centroid_count = j;
+                }
+
+            }//j
+
+            // associa il sample al centroide più vicino
+            if(assoc[i] != centroid_count){
+                assoc[i] = centroid_count;
+                modified = true;
+            }
+        }//i
+
+        // ricalcola posizione dei centroidi
+
+        for(int i=0; i<size; i++){
+
+            numVectPerCentroid[assoc[i]]++;
+            centroids[assoc[i]] += data.at(i);
+
+        }
+
+        for(int j=0; j<n_centroids; j++)
+            centroids[j] /= numVectPerCentroid[j];
+
+        n_iter++;
+
+    }
+    while(modified && n_iter < 100);
+
+}
+
+
 int* Quantizer2::getDiscreteSequence(Gesture gesture){
 
     this->init(gesture);
     std::vector<Sample_3d> data = gesture.getData();
     int size = data.size();
 
-    // associazioni (componente della gesture) - centroide
+    // associazioni (componente della gesture) <-> centroide
     int* assoc = new int[size];
     for(int i=0; i<size; i++)
         assoc[i] = -1;
 
+    // n° vettori associati a ciascun centroide
+    int numVectPerCentroid[n_centroids];
+    for(int i=0; i<n_centroids; i++ )
+        numVectPerCentroid[i] = 0;
 
-    for(int j=0; j<size; j++){
 
+    // determina centroide a distanza minima per ogni vettore
+    for(int i=0; i<size; i++){
+
+        // minima distanza finora riscontrata
         double min_dist = std::numeric_limits<double>::max();
-        Sample_3d item = data.at(j);
+        // centroide a minima distanza
+        int centroid_count = -1;
 
-        for(int k=0; k<n_centroids; k++){
+        for(int j=0; j<n_centroids; j++){
 
-            double curr_dist = distance(item, centroids[k]);
+            // calcola la distanza dell'elemento dal centroide corrente
+            double d = distance(data.at(i), centroids[j]);
 
-            if(curr_dist < min_dist){
-                min_dist = curr_dist;
-                assoc[j] = k;
+            // se la nuova distanza è minore della minima finora riscontrata,
+            // allora il centroide è il più vicino
+            if(d < min_dist){
+                min_dist = d;
+                centroid_count = j;
             }
+
+        }//j
+
+        // associa il sample al centroide più vicino
+        if(assoc[i] != centroid_count){
+            assoc[i] = centroid_count;
         }
-    }
+    }//i
 
     return assoc;
 

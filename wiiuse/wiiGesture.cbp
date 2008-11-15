@@ -17,7 +17,7 @@
 					<Add directory="./include" />
 				</Compiler>
 				<Linker>
-					<Add library="dl" />
+					<Add library="lib/libwiiuse.so" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -44,9 +44,6 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="main.cpp" />
-		<Unit filename="wiiuse.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Extensions>
 			<code_completion />
 			<debugger />

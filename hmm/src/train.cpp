@@ -21,8 +21,8 @@ int main(int argc, char** argv){
     std::ifstream validfile(test);
 
     // HMM
-    int n_stati = 8, n_simboli = 14;
-    HMM hmm(n_stati, n_simboli);
+    int n_stati = 5, n_simboli = 14 ,span = 1;
+    HMM hmm(n_stati, n_simboli, span);
 
     // dataset di train e validation
     std::vector< std::vector<int> > trainset;

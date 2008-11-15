@@ -1,12 +1,16 @@
-#ifndef Quantizer2_H_INCLUDED
-#define Quantizer2_H_INCLUDED
+#ifndef QUANTIZER2_H_INCLUDED
+#define QUANTIZER2_H_INCLUDED
 
 #include <math.h>
 #include <limits>
 #include "gesture.h"
 
-
-class Quantizer2{
+/**
+ * Classe per la quantizzazione delle gesture.
+ *
+ * Usa l'algoritmo k-means per classificare i sample che compongono la gesture, discretizzandola
+ */
+class Quantizer3{
 
 private:
 
@@ -28,17 +32,14 @@ private:
 public:
 
     // costruttore
-    Quantizer2();
+    Quantizer3();
 
     // calcola la sequenza discreta a partire dalla gesture
     // ritorna un vettore di interi con valori da 0 a 13
     int* getDiscreteSequence(Gesture gesture);
 
-    // addestra i centroidi
-    void train(Gesture gesture);
-
-    ~Quantizer2();
+    ~Quantizer3();
 
 };
 
-#endif // Quantizer2_H_INCLUDED
+#endif // QUANTIZER2_H_INCLUDED

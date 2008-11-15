@@ -79,8 +79,8 @@ int main(int argc, char** argv){
         }
         // fine di una gesture e sua discretizzazione
         else if(word == "</gesture>"){
-
-        Quantizer2 q;
+        /*
+        Quantizer q;
         int current_size = dataset.at(count-1).getSize();
 
         // calcola la sequenza discreta a partire dalla gesture
@@ -98,7 +98,7 @@ int main(int argc, char** argv){
         }
 
         out << disc_seq[current_size-1] << std::endl << "</gesture>" << std::endl;
-
+        */
         // azzera il contatore delle parole processate
         n_word = 0;
 
@@ -106,4 +106,45 @@ int main(int argc, char** argv){
 
     }
 
+    Gesture globalGesture;
+    int dataset_size = dataset.size();
+
+    for(int i=0; i<dataset_size; i++){
+
+        Gesture current_gesture = dataset.at(i);
+
+        int curr_size = current_gesture.getSize();
+
+        for(int j=0; j<curr_size; j++){
+            globalGesture.add(current_gesture.getSample(j));
+        }
+
+    }
+
+    Quantizer2 q;
+    q.train(globalGesture);
+
+    for(int k=0; k<dataset_size; k++){
+
+        // calcola la sequenza discreta a partire dalla gesture
+        int* disc_seq = q.getDiscreteSequence(dataset.at(k));
+        discrete_dataset.push_back(disc_seq);
+
+        int gesture_size = dataset.at(k).getSize();
+
+        // salva la gesture discreta sul file di output
+        out << "<gesture>" << std::endl;
+
+        for(int i=0; i<gesture_size -1; i++){
+
+            out << disc_seq[i] << " ";
+
+        }
+
+        out << disc_seq[gesture_size-1] << std::endl << "</gesture>" << std::endl;
+
+    }
+
+
 }
+

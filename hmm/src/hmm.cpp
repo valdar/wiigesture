@@ -1,6 +1,6 @@
 #include "hmm.h"
 
-HMM::HMM(int stati, int simboli, bool ergodic, int span){
+HMM::HMM(int stati, int simboli, int span, bool ergodic){
 
     this->numStati = stati;
     this->numSimboli = simboli;
