@@ -128,6 +128,8 @@ public:
 	double* getPi();
 	int getNumStati();
 
+	~cHMM();
+
 
 };
 

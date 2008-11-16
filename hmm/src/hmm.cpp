@@ -1,6 +1,6 @@
 #include "hmm.h"
 
-HMM::HMM(int stati, int simboli, bool ergodic, int span){
+HMM::HMM(int stati, int simboli, int span, bool ergodic){
 
     this->numStati = stati;
     this->numSimboli = simboli;
@@ -244,7 +244,7 @@ void HMM::trainMS(std::vector< std::vector<int> > trainingset){
                 double up = 0;
                 double down = 0;
 
-                for(int t=0; t<current.size()-1; t++){
+                for(int t=0; t<current.size(); t++){
 
                     if(current.at(t) == k)
                         up += alpha[j][t] * beta[j][t];
@@ -516,4 +516,8 @@ int HMM::getNumSimboli(){
 
 bool HMM::getIsErgodic(){
     return isErgodic;
+}
+
+HMM::~HMM(){
+    delete[] pi;
 }

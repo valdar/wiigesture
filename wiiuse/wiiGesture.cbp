@@ -17,7 +17,7 @@
 					<Add directory="./include" />
 				</Compiler>
 				<Linker>
-					<Add library="dl" />
+					<Add library="lib/libwiiuse.so" />
 				</Linker>
 			</Target>
 			<Target title="Release">

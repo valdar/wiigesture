@@ -56,7 +56,7 @@ public:
      * @param ergodic Indica se il modello sarà ergodico (true) o left-to-right (false)
      * @param span Indica, nel modello left-to-right, quanti stati sono connessi a sx e dx con lo stato corrente (default=2)
 	 */
-	HMM(int stati, int simboli, bool ergodic = false, int span = 2);
+	HMM(int stati, int simboli, int span = 2, bool ergodic = false);
 
 	/**
 	 * Addestra l'HMM a partire da un dataset di gesture
@@ -116,6 +116,8 @@ public:
 	int getNumStati();
 	int getNumSimboli();
 	bool getIsErgodic();
+
+	~HMM();
 
 };
 

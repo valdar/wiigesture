@@ -729,3 +729,7 @@ double* cHMM::getPi(){
 int cHMM::getNumStati(){
     return numStati;
 }
+
+cHMM::~cHMM(){
+    delete[] pi;
+}

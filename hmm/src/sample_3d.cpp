@@ -63,4 +63,3 @@ Sample_3d Sample_3d::operator/(int a){
 
     return b /= a;
 }
-
