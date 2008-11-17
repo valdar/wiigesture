@@ -37,6 +37,9 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Linker>
+			<Add library="lib/libwiiuse.so" />
+		</Linker>
 		<Unit filename="include/wiiuse.h">
 			<Option target="Release" />
 		</Unit>
@@ -47,6 +50,7 @@
 		<Extensions>
 			<code_completion />
 			<debugger />
+			<envvars />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
