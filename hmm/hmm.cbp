@@ -48,6 +48,7 @@
 		<Unit filename="SConstruct" />
 		<Unit filename="include/Gaussian_3d.h" />
 		<Unit filename="include/Gaussian_3d_mixture.h" />
+		<Unit filename="include/GestureModel.h" />
 		<Unit filename="include/buffer.h" />
 		<Unit filename="include/chmm.h" />
 		<Unit filename="include/gesture.h" />
@@ -57,6 +58,7 @@
 		<Unit filename="include/sample_3d.h" />
 		<Unit filename="src/Gaussian_3d.cpp" />
 		<Unit filename="src/Gaussian_3d_mixture.cpp" />
+		<Unit filename="src/GestureModel.cpp" />
 		<Unit filename="src/SConscript" />
 		<Unit filename="src/chmm.cpp" />
 		<Unit filename="src/discretizzazione.cpp" />
