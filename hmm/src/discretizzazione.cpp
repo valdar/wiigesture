@@ -77,7 +77,7 @@ int main(int argc, char** argv){
             n_word++;
 
         }
-        // fine di una gesture e sua discretizzazione
+        // fine di una gesture
         else if(word == "</gesture>"){
         /*
         Quantizer q;
