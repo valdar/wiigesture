@@ -17,6 +17,9 @@ hmm/obj/*
 hmm/bin/*
 wiiuse/bin/*
 
+# Ignore Sconstruct script (problema path libboost 1.36 su ubuntu)
+hmm/SConstruct
+
 # Ignore linux directory files
 .directory
 
