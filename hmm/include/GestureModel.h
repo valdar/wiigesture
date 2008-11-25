@@ -3,14 +3,15 @@
 
 #include <vector>
 
-#include "quantizer2"
-#include "hmm"
-#include "gesture"
+#include "quantizer2.h"
+#include "hmm.h"
+#include "gesture.h"
 
 class GestureModel
 {
     public:
         GestureModel();
+        GestureModel(int n_stati, int span);
         virtual ~GestureModel();
 
         void setHMM(HMM* newHMM);
@@ -22,7 +23,7 @@ class GestureModel
         bool isQuantizerTrained();
 
         void trainHMM(std::vector<Gesture > trainSet);
-        std:vector<double > evalueteGestures(std::vector<Gesture > testSet);
+        std::vector<double > evaluateGestures(std::vector<Gesture > testSet);
 
     protected:
     private:

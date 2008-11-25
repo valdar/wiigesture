@@ -29,7 +29,7 @@ int main(int argc, char** argv){
     std::vector<Gesture> dataset;
 
     // nuovo dataset discretizzato
-    std::vector<int*> discrete_dataset;
+    std::vector< std::vector<int> > discrete_dataset;
 
     // n° di gesture correntemente processate
     int count = 0;
@@ -127,7 +127,7 @@ int main(int argc, char** argv){
     for(int k=0; k<dataset_size; k++){
 
         // calcola la sequenza discreta a partire dalla gesture
-        int* disc_seq = q.getDiscreteSequence(dataset.at(k));
+        std::vector<int> disc_seq = q.getDiscreteSequence(dataset.at(k));
         discrete_dataset.push_back(disc_seq);
 
         int gesture_size = dataset.at(k).getSize();

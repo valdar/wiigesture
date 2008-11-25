@@ -45,9 +45,10 @@ void Quantizer2::train(Gesture gesture){
         assoc[i] = -1;
 
     // n° vettori associati a ciascun centroide
+    // contando il centroide stesso! (infatti si inizializza a 1)
     int numVectPerCentroid[n_centroids];
     for(int i=0; i<n_centroids; i++ )
-        numVectPerCentroid[i] = 0;
+        numVectPerCentroid[i] = 1;
 
     bool modified;
     int n_iter = 0;
@@ -104,16 +105,16 @@ void Quantizer2::train(Gesture gesture){
 }
 
 
-int* Quantizer2::getDiscreteSequence(Gesture gesture){
+std::vector<int> Quantizer2::getDiscreteSequence(Gesture gesture){
 
     this->init(gesture);
     std::vector<Sample_3d> data = gesture.getData();
     int size = data.size();
 
     // associazioni (componente della gesture) <-> centroide
-    int* assoc = new int[size];
+    std::vector<int> assoc;
     for(int i=0; i<size; i++)
-        assoc[i] = -1;
+        assoc.push_back(-1);
 
     // n° vettori associati a ciascun centroide
     int numVectPerCentroid[n_centroids];
@@ -144,8 +145,8 @@ int* Quantizer2::getDiscreteSequence(Gesture gesture){
         }//j
 
         // associa il sample al centroide più vicino
-        if(assoc[i] != centroid_count){
-            assoc[i] = centroid_count;
+        if(assoc.at(i) != centroid_count){
+            assoc.at(i) = centroid_count;
         }
     }//i
 

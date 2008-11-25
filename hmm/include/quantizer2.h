@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <limits>
+#include <vector>
 #include "gesture.h"
 
 
@@ -32,7 +33,7 @@ public:
 
     // calcola la sequenza discreta a partire dalla gesture
     // ritorna un vettore di interi con valori da 0 a 13
-    int* getDiscreteSequence(Gesture gesture);
+    std::vector<int> getDiscreteSequence(Gesture gesture);
 
     // addestra i centroidi
     void train(Gesture gesture);

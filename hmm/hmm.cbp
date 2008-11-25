@@ -49,7 +49,6 @@
 		<Unit filename="include/Gaussian_3d.h" />
 		<Unit filename="include/Gaussian_3d_mixture.h" />
 		<Unit filename="include/GestureModel.h" />
-		<Unit filename="include/buffer.h" />
 		<Unit filename="include/chmm.h" />
 		<Unit filename="include/gesture.h" />
 		<Unit filename="include/hmm.h" />

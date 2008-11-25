@@ -35,7 +35,9 @@ wiiGesture_files = Split("""Gaussian_3d.cpp
                             main.cpp
                             sample_3d.cpp
                             gesture.cpp
-                            quantizer.cpp""")
+                            quantizer2.cpp
+                            quantizer.cpp
+                            GestureModel.cpp""")
 
 discretizzazione_files = Split("""discretizzazione.cpp
                                     gesture.cpp
