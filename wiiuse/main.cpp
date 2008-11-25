@@ -65,7 +65,7 @@ void handle_event(struct wiimote_t* wm, std::ofstream* file) {
 		 *	This is useful because it saves battery power.
 		 */
 		if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_MINUS)){
-            printf("\n\n--- EVENT ACC_ON [wiimote id %i] ---\n", wm->unid);
+            printf("\n\n--- EVENT ACC_OFF [wiimote id %i] ---\n", wm->unid);
 			wiiuse_motion_sensing(wm, 0);
 		}
 
@@ -73,7 +73,7 @@ void handle_event(struct wiimote_t* wm, std::ofstream* file) {
 		 *	Pressing plus will tell the wiimote we are interested in movement.
 		 */
 		if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_PLUS)){
-            printf("\n\n--- EVENT ACC_OFF[wiimote id %i] ---\n", wm->unid);
+            printf("\n\n--- EVENT ACC_ON [wiimote id %i] ---\n", wm->unid);
 			wiiuse_motion_sensing(wm, 1);
 		}
     }
@@ -253,6 +253,7 @@ int main(int argc, char** argv) {
 	//wiiuse_set_leds(wiimotes[1], WIIMOTE_LED_2);
 	//wiiuse_set_leds(wiimotes[2], WIIMOTE_LED_3);
 	//wiiuse_set_leds(wiimotes[3], WIIMOTE_LED_4);
+	wiiuse_set_accel_threshold(wiimotes[0], 1);
 	wiiuse_rumble(wiimotes[0], 1);
 	//wiiuse_rumble(wiimotes[1], 1);
 
