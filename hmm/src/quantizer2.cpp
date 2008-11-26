@@ -33,7 +33,17 @@ void Quantizer2::init(Gesture gesture){
 }
 
 
-void Quantizer2::train(Gesture gesture){
+void Quantizer2::train(std::vector<Gesture> gestures){
+    //metagesture: contiene tutte le componenti di tutte le gesture.
+    Gesture gesture;
+
+    //costruzione della metagesture
+    for(int k=0; k<gestures.size(); k++){
+        std::vector<Sample_3d> curGesturData = gestures.at(k).getData();
+        for(int w=0; w<curGesturData.size(); w++){
+            gesture.add( curGesturData.at(w) );
+        }
+    }
 
     this->init(gesture);
     std::vector<Sample_3d> data = gesture.getData();
@@ -105,7 +115,7 @@ void Quantizer2::train(Gesture gesture){
 }
 
 
-std::vector<int> Quantizer2::getDiscreteSequence(Gesture gesture){
+std::vector<int> Quantizer2::getDiscreteSequence(Gesture& gesture){
 
     this->init(gesture);
     std::vector<Sample_3d> data = gesture.getData();

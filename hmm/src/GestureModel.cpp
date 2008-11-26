@@ -38,8 +38,8 @@ Quantizer2* GestureModel::getQuantizer(){
     return this->quant;
 }
 
-void GestureModel::trainQuantizer( Gesture metaGesture ){
-    quant->train(metaGesture);
+void GestureModel::trainQuantizer( std::vector<Gesture> dataset ){
+    quant->train(dataset);
     this->quantizerTrained = true;
 }
 
@@ -55,7 +55,7 @@ void GestureModel::trainHMM(std::vector<Gesture > trainSet){
     gestureHMM->trainMS( discreteTrainSet );
 }
 
-std::vector<double > GestureModel::evaluateGestures(std::vector<Gesture > testSet){
+std::vector<double > GestureModel::evaluateGestures(std::vector<Gesture >& testSet){
     std::vector<double > results;
     for( int i=0; i<testSet.size(); i++ ){
         //std::vector<int> discVector = quant->getDiscreteSequence(testSet.at(i));

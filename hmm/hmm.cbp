@@ -8,12 +8,12 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/Debug/hmm" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Debug/wiiGesture" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="bin/Debug/folds/dxsx_train.txt bin/Debug/folds/dxsx_valid.txt" />
-				<Option host_application="bin/Debug/train" />
+				<Option parameters="CERCHIOandrea_valid1.txt TRINAGOLOandrea_valid1.txt Zandrea_valid1.txt CERCHIOandrea_train1.txt TRINAGOLOandrea_train1.txt Zandrea_train1 8 1" />
+				<Option host_application="bin/Debug/wiiGesture" />
 				<Compiler>
 					<Add option="-g" />
 					<Add directory="include" />
@@ -60,6 +60,7 @@
 		<Unit filename="src/GestureModel.cpp" />
 		<Unit filename="src/SConscript" />
 		<Unit filename="src/chmm.cpp" />
+		<Unit filename="src/crossvalidation.cpp" />
 		<Unit filename="src/discretizzazione.cpp" />
 		<Unit filename="src/gesture.cpp" />
 		<Unit filename="src/hmm.cpp" />

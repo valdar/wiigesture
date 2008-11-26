@@ -4,9 +4,10 @@
 #include <sstream>
 #include <string>
 
-#include "chmm.h"
 #include "hmm.h"
 #include "sample_3d.h"
+#include "gesture.h"
+#include "GestureModel.h"
 
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
@@ -23,17 +24,19 @@ using namespace std;
 int main(int argc, char** argv)
 {
     //parsing degli input
-    if(argc < 5)
+    if(argc < 5){
+        std::cout<<"USO: wiiGesture <train_file> <validation_file> <num_stati> <span>"<<std::endl;
         return 1;
+    }
 
     char* train = argv[1];
     char* valid = argv[2];
 
-    std::istringstream s_stati(std::string(argv[3]));
+    std::istringstream s_stati(argv[3]);
     int stati;
     s_stati >> stati;
 
-    std::istringstream s_span(std::string(argv[4]));
+    std::istringstream s_span(argv[4]);
     int span;
     s_span >> span;
 
@@ -166,20 +169,21 @@ int main(int argc, char** argv)
     //Addestramento del quantizzatore
     gesture1->trainQuantizer(dataset);
 
-    std::cout<<"quantizer: OK"<<std:endl;
+    std::cout<<"quantizer: OK"<<std::endl;
 
     //Addestramento HMM
     gesture1->trainHMM(dataset);
 
-    std::cout<<"hmm: TRAINED"<<std:endl;
+    std::cout<<"hmm: TRAINED"<<std::endl;
 
     //Tests (validation)
     std::cout<<std::endl;
-    for(int g=0; g<testset.size(); g++){
-        double prob;
-        prob = gesture1->evaluateGestures(testset.at(g));
 
-        std::cout<<"prob gesture "<<g<<": "<<prob<<std::endl;
+    std::vector<double> prob = gesture1->evaluateGestures(testset);
+
+    for(int g=0; g<prob.size(); g++){
+
+        std::cout<<"prob gesture "<<g<<": "<<prob.at(g)<<std::endl;
     }
 
     return 0;

@@ -33,10 +33,10 @@ public:
 
     // calcola la sequenza discreta a partire dalla gesture
     // ritorna un vettore di interi con valori da 0 a 13
-    std::vector<int> getDiscreteSequence(Gesture gesture);
+    std::vector<int> getDiscreteSequence(Gesture& gesture);
 
     // addestra i centroidi
-    void train(Gesture gesture);
+    void train(std::vector<Gesture> gestures);
 
     ~Quantizer2();
 

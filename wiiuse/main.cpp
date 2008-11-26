@@ -36,7 +36,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <sstream>
+#include <iostream>
 #include <fstream>
 
 #ifndef WIN32
@@ -57,7 +58,7 @@
  *	This function is called automatically by the wiiuse library when an
  *	event occurs on the specified wiimote.
  */
-void handle_event(struct wiimote_t* wm, std::ofstream* file) {
+void handle_event(struct wiimote_t* wm, std::stringstream* file) {
 
     if (wm->btns) {
 		/*
@@ -196,6 +197,7 @@ int main(int argc, char** argv) {
 
     if(argc < 2)
         return 1;
+    std::stringstream buffer;
     std::ofstream outfile;
     outfile.open(argv[1]);
 
@@ -253,7 +255,7 @@ int main(int argc, char** argv) {
 	//wiiuse_set_leds(wiimotes[1], WIIMOTE_LED_2);
 	//wiiuse_set_leds(wiimotes[2], WIIMOTE_LED_3);
 	//wiiuse_set_leds(wiimotes[3], WIIMOTE_LED_4);
-	wiiuse_set_accel_threshold(wiimotes[0], 1);
+	//wiiuse_set_accel_threshold(wiimotes[0], 1);
 	wiiuse_rumble(wiimotes[0], 1);
 	//wiiuse_rumble(wiimotes[1], 1);
 
@@ -301,7 +303,7 @@ int main(int argc, char** argv) {
 				switch (wiimotes[i]->event) {
 					case WIIUSE_EVENT:
 						/* a generic event occured */
-						handle_event(wiimotes[i], &outfile);
+						handle_event(wiimotes[i], &buffer);
 						break;
 
 					case WIIUSE_STATUS:
@@ -366,6 +368,7 @@ int main(int argc, char** argv) {
 	 */
 	wiiuse_cleanup(wiimotes, MAX_WIIMOTES);
 
+    outfile << buffer.str();
     outfile.close();
 	return 0;
 }

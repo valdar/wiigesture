@@ -28,7 +28,7 @@ Import('*') #import of environment from SConstruct script
 #
 # ovviamente sostituendo NAME col nome scelto!
 
-wiiGesture_files = Split("""main.cpp
+wiiGesture_files = Split("""crossvalidation.cpp
                             hmm.cpp
                             sample_3d.cpp
                             gesture.cpp

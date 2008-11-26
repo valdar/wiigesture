@@ -122,7 +122,7 @@ int main(int argc, char** argv){
     }
 
     Quantizer2 q;
-    q.train(globalGesture);
+    q.train(dataset);
 
     for(int k=0; k<dataset_size; k++){
 
