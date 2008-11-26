@@ -160,14 +160,27 @@ int main(int argc, char** argv)
 
 
     //Costruzione del GesturModel
+    GestureModel* gesture1;
+    gesture1 = new GestureModel(stati, span);
 
     //Addestramento del quantizzatore
+    gesture1->trainQuantizer(dataset);
+
+    std::cout<<"quantizer: OK"<<std:endl;
 
     //Addestramento HMM
+    gesture1->trainHMM(dataset);
+
+    std::cout<<"hmm: TRAINED"<<std:endl;
 
     //Tests (validation)
+    std::cout<<std::endl;
+    for(int g=0; g<testset.size(); g++){
+        double prob;
+        prob = gesture1->evaluateGestures(testset.at(g));
 
-
+        std::cout<<"prob gesture "<<g<<": "<<prob<<std::endl;
+    }
 
     return 0;
 }

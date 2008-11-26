@@ -28,15 +28,11 @@ Import('*') #import of environment from SConstruct script
 #
 # ovviamente sostituendo NAME col nome scelto!
 
-wiiGesture_files = Split("""Gaussian_3d.cpp
-                            Gaussian_3d_mixture.cpp
-                            chmm.cpp
+wiiGesture_files = Split("""main.cpp
                             hmm.cpp
-                            main.cpp
                             sample_3d.cpp
                             gesture.cpp
                             quantizer2.cpp
-                            quantizer.cpp
                             GestureModel.cpp""")
 
 discretizzazione_files = Split("""discretizzazione.cpp
