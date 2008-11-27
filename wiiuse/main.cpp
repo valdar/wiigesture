@@ -40,6 +40,18 @@
 #include <iostream>
 #include <fstream>
 
+#include <cstdlib>
+#include <ctime>
+#include <string>
+
+#include "hmm.h"
+#include "sample_3d.h"
+#include "gesture.h"
+#include "GestureModel.h"
+
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/io.hpp>
+
 #ifndef WIN32
 	#include <unistd.h>
 #endif
@@ -49,6 +61,131 @@
 
 #define MAX_WIIMOTES    1
 
+std::vector<Gesture> importDataFile(char* filename){
+    int module = 3; //i valori sono a 3 a 3.
+
+    std::ifstream train_fs(filename);
+
+    std::string word; // parola correntemente acquisita
+
+    std::vector<Gesture> dataset; // dataset di gesture (non discrete) da ricostruire
+
+    int count = 0;// n° di gesture correntemente processate
+
+    int n_word = 0;// n° dati acquisiti per la gesture corrente
+
+    double temp[module];// terna di accelerazioni corrente
+
+    while(!train_fs.eof()){
+
+        // acquisisce la prima parola FORMATTATA
+        train_fs >> word;
+
+        // inizio di una gesture
+        if(word == "<gesture>"){
+
+            // crea una nuova gesture nel dataset
+            dataset.push_back(Gesture());
+
+            // incrementa il n° di gesture processate
+            count++;
+
+        }
+        // fase acquisizione dati della gesture
+        else if(word != "<gesture>" && word != "</gesture>"){
+
+            // converte la parola acquisita in mumero
+            std::istringstream num(word);
+            double value;
+            num >> value;
+
+            // memorizza il numero
+            temp[n_word%module] = value;
+
+            // se ho memorizzato una terna di numeri, crea da essi un Sample_3d
+            // e inseriscilo nella gesture corrente
+            if( (n_word % module) == 2){
+                //temp[2] = temp[2] - 1;
+                dataset.at(count-1).add(Sample_3d(temp));
+            }
+
+            // incrementa il contatore delle parole processate
+            n_word++;
+
+        }
+        // fine di una gesture
+        else if(word == "</gesture>"){
+
+            n_word = 0;
+
+        }
+
+    }
+
+return dataset;
+}
+
+std::vector<Gesture> importDataString( std::stringstream train_fs ){
+    int module = 3; //i valori sono a 3 a 3.
+
+    std::string word; // parola correntemente acquisita
+
+    std::vector<Gesture> dataset; // dataset di gesture (non discrete) da ricostruire
+
+    int count = 0;// n° di gesture correntemente processate
+
+    int n_word = 0;// n° dati acquisiti per la gesture corrente
+
+    double temp[module];// terna di accelerazioni corrente
+
+    while(!train_fs.eof()){
+
+        // acquisisce la prima parola FORMATTATA
+        train_fs >> word;
+
+        // inizio di una gesture
+        if(word == "<gesture>"){
+
+            // crea una nuova gesture nel dataset
+            dataset.push_back(Gesture());
+
+            // incrementa il n° di gesture processate
+            count++;
+
+        }
+        // fase acquisizione dati della gesture
+        else if(word != "<gesture>" && word != "</gesture>"){
+
+            // converte la parola acquisita in mumero
+            std::istringstream num(word);
+            double value;
+            num >> value;
+
+            // memorizza il numero
+            temp[n_word%module] = value;
+
+            // se ho memorizzato una terna di numeri, crea da essi un Sample_3d
+            // e inseriscilo nella gesture corrente
+            if( (n_word % module) == 2){
+                //temp[2] = temp[2] - 1;
+                dataset.at(count-1).add(Sample_3d(temp));
+            }
+
+            // incrementa il contatore delle parole processate
+            n_word++;
+
+        }
+        // fine di una gesture
+        else if(word == "</gesture>"){
+
+            n_word = 0;
+
+        }
+
+    }
+
+return dataset;
+}
 
 /**
  *	@brief Callback that handles an event.
@@ -58,7 +195,7 @@
  *	This function is called automatically by the wiiuse library when an
  *	event occurs on the specified wiimote.
  */
-void handle_event(struct wiimote_t* wm, std::stringstream* file) {
+void handle_event(struct wiimote_t* wm, std::stringstream* file, bool& endGesture) {
 
     if (wm->btns) {
 		/*
@@ -83,16 +220,16 @@ void handle_event(struct wiimote_t* wm, std::stringstream* file) {
 	if (WIIUSE_USING_ACC(wm)) {
 		if(wm->btns){
 		    if(IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_A)){
-                printf("INIZIO GESTURE\n");
+                //printf("INIZIO GESTURE\n");
                 *file << "<gesture>" << std::endl;
 		    }
 		}
 
         if(wm->btns_held){
 		    if(IS_HELD(wm, WIIMOTE_BUTTON_A)){
-                printf("wiimote X acc   = %f\n", wm->gforce.x);
-                printf("wiimote Y acc   = %f\n", wm->gforce.y);
-                printf("wiimote Z acc   = %f\n", wm->gforce.z);
+                //printf("wiimote X acc   = %f\n", wm->gforce.x);
+                //printf("wiimote Y acc   = %f\n", wm->gforce.y);
+                //printf("wiimote Z acc   = %f\n", wm->gforce.z);
 
                 *file << wm->gforce.x << " " << wm->gforce.y << " " << wm->gforce.z << std::endl;
 		    }
@@ -100,8 +237,9 @@ void handle_event(struct wiimote_t* wm, std::stringstream* file) {
 
         if(wm->btns_released){
             if(IS_RELEASED(wm, WIIMOTE_BUTTON_A)){
-                printf("FINE GESTURE\n");
+                //printf("FINE GESTURE\n");
                 *file << "</gesture>" << std::endl;
+                endGesture = true;
 		    }
 		}
 	}
@@ -195,13 +333,11 @@ void test(struct wiimote_t* wm, byte* data, unsigned short len) {
  */
 int main(int argc, char** argv) {
 
-    if(argc < 2)
+    //parsing degli input
+    if(argc < 6){
+        std::cout<<"USO: wiiGesture <train_file1> <train_file2> <train_file3> <num_stati> <span>"<<std::endl;
         return 1;
-    std::stringstream buffer;
-    std::ofstream outfile;
-    outfile.open(argv[1]);
-
-
+    }
 
 	wiimote** wiimotes;
 	int found, connected;
@@ -268,7 +404,55 @@ int main(int argc, char** argv) {
 	wiiuse_rumble(wiimotes[0], 0);
 	//wiiuse_rumble(wiimotes[1], 0);
 
+    std::stringstream buffer;
+
+    char* train1 = argv[1];
+    char* train2 = argv[2];
+    char* train3 = argv[3];
+
+    std::istringstream s_stati(argv[4]);
+    int stati;
+    s_stati >> stati;
+
+    std::istringstream s_span(argv[5]);
+    int span;
+    s_span >> span;
+
+    std::cout<<"numero stati: "<<stati<<" | span: "<<span<<std::endl;
+
+    //Costruzione dei Trainset
+    std::vector<Gesture> trainset1 = importDataFile(train1);
+    std::vector<Gesture> trainset2 = importDataFile(train2);
+    std::vector<Gesture> trainset3 = importDataFile(train3);
+
+    //Costruzione dei GesturModel
+    GestureModel* gesture1;
+    gesture1 = new GestureModel(stati, span);
+
+    GestureModel* gesture2;
+    gesture2 = new GestureModel(stati, span);
+
+    GestureModel* gesture3;
+    gesture3 = new GestureModel(stati, span);
+
+    //Addestramento dei quantizzatore
+    gesture1->trainQuantizer(trainset1);
+    gesture2->trainQuantizer(trainset2);
+    gesture3->trainQuantizer(trainset3);
+
+    std::cout<<"quantizerS: OK"<<std::endl;
+
+    //Addestramento HMMs
+    gesture1->trainHMM(trainset1);
+    gesture2->trainHMM(trainset2);
+    gesture3->trainHMM(trainset3);
+
+    std::cout<<"hmmS: TRAINED"<<std::endl;
+
+
+
     bool one_wiimote_connected = true;
+    bool finishedGesture = false;
 	/*
 	 *	Maybe I'm interested in the battery power of the 0th
 	 *	wiimote.  This should be WIIMOTE_ID_1 but to be sure
@@ -303,7 +487,51 @@ int main(int argc, char** argv) {
 				switch (wiimotes[i]->event) {
 					case WIIUSE_EVENT:
 						/* a generic event occured */
-						handle_event(wiimotes[i], &buffer);
+						handle_event(wiimotes[i], &buffer, finishedGesture);
+						if( finishedGesture ){
+                            std::ofstream tempFile("tempGesture.txt", std::ios_base::trunc);
+                            //std::ifstream tempFile("tempGesture");
+                            tempFile<<buffer.str();
+                            std::vector<Gesture> currentGestur =  importDataFile( "tempGesture.txt" );
+
+                            std::vector<double> prob1 = gesture1->evaluateGestures( currentGestur );
+                            std::vector<double> prob2 = gesture2->evaluateGestures( currentGestur );
+                            std::vector<double> prob3 = gesture3->evaluateGestures( currentGestur );
+
+                            for(int i=0; i<prob1.size(); i++){
+                                double a,b,c;
+                                a=prob1.at(i);
+                                b=prob2.at(i);
+                                c=prob3.at(i);
+
+                                double max = a;
+                                int max_id = 1;
+                                if(b>max){
+                                    max = b;
+                                    max_id = 2;
+                                }
+                                if(c>max){
+                                    max = c;
+                                    max_id = 3;
+                                }
+
+                                if(max < 0.0000000001){
+                                    max_id =0;
+                                }
+
+                                if(max_id == 1)
+                                    std::cout<< "QUADRATO" <<std::endl;
+                                if(max_id == 2)
+                                    std::cout<< "TRIANGOLO" <<std::endl;
+                                if(max_id == 3)
+                                    std::cout<< "ZETA" <<std::endl;
+                                if(max_id == 0)
+                                    std::cout<< "GESTURE NON RICONOSCIUTA!!!" <<std::endl;
+                            }
+                            finishedGesture = false;
+                            tempFile.close();
+                            buffer.str("");
+						}
 						break;
 
 					case WIIUSE_STATUS:
@@ -368,8 +596,6 @@ int main(int argc, char** argv) {
 	 */
 	wiiuse_cleanup(wiimotes, MAX_WIIMOTES);
 
-    outfile << buffer.str();
-    outfile.close();
 	return 0;
 }
 

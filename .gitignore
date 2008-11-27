@@ -25,6 +25,7 @@ hmm/SConstruct
 
 # Ignore backups
 *~
+tempGesture.txt
 
 # Ignore Scons stuff
 config.log

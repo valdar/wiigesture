@@ -11,10 +11,12 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="./out.txt" />
+				<Option parameters="QUADRATOandrea_train3.txt TRINAGOLOandrea_train3.txt Zandrea_train3.txt 8 1" />
+				<Option host_application="bin/Debug/wiiGesture" />
 				<Compiler>
 					<Add option="-g" />
 					<Add directory="./include" />
+					<Add directory="/home/valdar/projects/boost_1_36_0" />
 				</Compiler>
 				<Linker>
 					<Add library="lib/libwiiuse.so" />
@@ -40,6 +42,14 @@
 		<Linker>
 			<Add library="lib/libwiiuse.so" />
 		</Linker>
+		<Unit filename="GestureModel.cpp" />
+		<Unit filename="gesture.cpp" />
+		<Unit filename="hmm.cpp" />
+		<Unit filename="include/GestureModel.h" />
+		<Unit filename="include/gesture.h" />
+		<Unit filename="include/hmm.h" />
+		<Unit filename="include/quantizer2.h" />
+		<Unit filename="include/sample_3d.h" />
 		<Unit filename="include/wiiuse.h">
 			<Option target="Release" />
 		</Unit>
@@ -47,6 +57,8 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="main.cpp" />
+		<Unit filename="quantizer2.cpp" />
+		<Unit filename="sample_3d.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />
