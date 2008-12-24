@@ -515,7 +515,7 @@ int main(int argc, char** argv) {
                                     max_id = 3;
                                 }
 
-                                if(max < 0.0000000001){
+                                if(max < 0.0000000000000000001){
                                     max_id =0;
                                 }
 

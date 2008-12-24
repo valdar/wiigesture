@@ -1,0 +1,547 @@
+% $Header: /cvsroot/latex-beamer/latex-beamer/solutions/generic-talks/generic-ornate-15min-45min.en.tex,v 1.5 2007/01/28 20:48:23 tantau Exp $
+
+\documentclass[mathserif]{beamer}
+%\documentclass{beamer}
+
+
+% This file is a solution template for:
+
+% - Giving a talk on some subject.
+% - The talk is between 15min and 45min long.
+% - Style is ornate.
+
+
+
+% Copyright 2004 by Till Tantau <tantau@users.sourceforge.net>.
+%
+% In principle, this file can be redistributed and/or modified under
+% the terms of the GNU Public License, version 2.
+%
+% However, this file is supposed to be a template to be modified
+% for your own needs. For this reason, if you use this file as a
+% template and not specifically distribute it as part of a another
+% package/program, I grant the extra permission to freely copy and
+% modify this file as you see fit and even to delete this copyright
+% notice. 
+
+
+\mode<presentation>
+{
+  \usetheme{Warsaw}
+  % or ...
+
+  \setbeamercovered{transparent}
+  % or whatever (possibly just delete it)
+}
+
+
+\usepackage[italian]{babel}
+% or whatever
+
+\usepackage[latin1]{inputenc}
+% or whatever
+
+\usepackage{times}
+%\usepackage{cite}
+\usepackage[T1]{fontenc}
+%\usepackage{fourier}
+\usepackage{eulervm}
+\usepackage{algorithm}
+% Or whatever. Note that the encoding and the font should match. If T1
+% does not look nice, try deleting the line with the fontenc.
+
+
+\title[Elaborato di Apprendimento Automatico] % (optional, use only with long paper titles)
+{}
+
+\subtitle
+{Large Scale Transductive SVMs} % (optional)
+
+\author[Andrea~Tarocchi, Marco~Magnatti] % (optional, use only with lots of authors)
+{Andrea~Tarocchi, Marco~Magnatti}
+% - Use the \inst{?} command only if the authors have different
+%   affiliation.
+
+
+\date[Short Occasion] % (optional)
+{8-1-2009}
+
+\subject{Talks}
+% This is only inserted into the PDF information catalog. Can be left
+% out. 
+
+
+
+% If you have a file called "university-logo-filename.xxx", where xxx
+% is a graphic format that can be processed by latex or pdflatex,
+% resp., then you can add a logo as follows:
+
+ \pgfdeclareimage[height=0.7cm]{university-logo}{university-logo-filename}
+ \logo{\pgfuseimage{university-logo}}
+
+
+
+% Delete this, if you do not want the table of contents to pop up at
+% the beginning of each subsection:
+
+
+% If you wish to uncover everything in a step-wise fashion, uncomment
+% the following command: 
+
+\beamerdefaultoverlayspecification{<+->}
+
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Outline}
+  \tableofcontents
+  % You might wish to add the option [pausesections]
+\end{frame}
+
+
+% Since this a solution template for a generic talk, very little can
+% be said about how it should be structured. However, the talk length
+% of between 15min and 45min and the theme suggest that you stick to
+% the following rules:  
+
+% - Exactly two or three sections (other than the summary).
+% - At *most* three subsections per section.
+% - Talk about 30s to 2min per frame. So there should be between about
+%   15 and 30 frames, all told.
+
+\section{Introduzione}
+
+
+
+\begin{frame}{Transductive SVMs}{}
+  % - A title should summarize the slide in an understandable fashion
+  %   for anyone how does not follow everything on the slide itself.
+
+
+\begin{block}{TSVMs in breve }<1-> 
+Le macchine a vettori di supporto trasduttive (TSVMs) sono una metodologia per migliorare l'accuratezza delle macchine a vettori di supporto (SVMs) attraverso l'uso di dati non etichettati. Le TSVMs, come le SVMs, apprendono un iperpiano di classificazione con il pi� ampio margine possibile , ma nello stesso tempo forzano l'iperpiano \alert{ad essere distante dai dati non etichettati}. 
+
+\end{block}
+
+\begin{block}{Semi-Supervised Learning (SSL)}<1-> 
+L'utilizzo di dati non etichettati pu� essere giustificato nel contesto del Semi-supervised learning.
+
+\end{block}
+
+\end{frame}
+
+
+\begin{frame}{Iperpiani a massimo margine}
+
+\begin{figure}[htbp]
+	\centering
+		\includegraphics[scale=0.35]{svm_tsvm_margin.png}
+	\caption{Iperpiani a massimo margine. Gli esempi positivi/negativi sono marcati con +/-, quelli di test con i puntini. La linea tratteggiata � la soluzione di SVM, quella continua di TSVM.}
+	\label{fig:gres}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Che cosa � SSL}
+
+\begin{block}{}<1-> 
+Il Semi-supervised learning � una via di mezzo tra l'apprendimento supervisionato e quello non supervisionato.
+Si hanno a disposizione dati etichettati $(x_i,y_i)$ e dati non etichettati$(x_i^*)$ nella fase di training. Si misura l'efficacia su un test set etichettato.
+\end{block}
+
+\begin{block}{}
+	Altra interpretazione per i dati non etichettati: 
+\begin{itemize}
+	\item<1->  le etichette di training hanno diversi livelli di di dettaglio.
+\begin{itemize}
+	\item<1->  e.g. frase $\rightarrow$ frase segmentata in parole $\rightarrow$ frase segmentata in sillabe.
+\end{itemize}
+\end{itemize}
+\end{block}
+
+\end{frame}
+
+\begin{frame}{Perch� utilizzare SSL?}
+
+\begin{block}{}
+\begin{itemize}
+	\item<1->  Etichettare i dati � costoso.
+	\item<1->  Contrariamente i dati non etichettati si ottengono facilmente.
+	\item<1->  Somiglia pi� all'apprendimento umano che non si basa su input molto dettagliati.
+\end{itemize}
+
+\end{block}
+
+\end{frame}
+
+
+
+\begin{frame}{In che modo i dati non etichettati aiutano}{}
+
+\begin{block}{\alert{Cluster Assumption}} 
+Il \textit{decision boundary} non dovrebbe attraversare regioni ad alta densit�, ma essere invece localizzato in regioni a bassa densit�.
+Le TSVMs implementano la cluster assumption cercando di individuare un iperpiano che sia distante dai dati non etichettati. La logica con cui si trattano i dati etichettati e non etichettati per massimizzare il margine � diversa:
+
+\begin{itemize}
+	\item<1-> Per i dati etichettati si implementa il problema di ottimizzazione standard SVM. 
+	\item<1-> Per i dati non etichettati la massimizzazione del margine utilizza la cluster assumption.
+\end{itemize}
+\end{block}
+
+%Vapnik ha una differente interpretazione sostenendo che la trasduzione sia inerentemente pi� semplice dell'induzione.
+
+\end{frame}
+
+\begin{frame}{Problema delle TSVMs}
+\begin{block}{}
+Uno dei problemi riscontrati nell'approccio TSVMs e pi� in generale nel SSL � la difficolt� delle implementazioni a trattare un elevato numero di dati.
+\begin{itemize}
+	\item<1->  e.g. Chapelle e Zien hanno proposto una implementazione di TSVM che scala come $(L+U)^3$, con $L$ numero di esempi etichettati e $U$ numero di esempi non etichettati.
+\end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}{TSVMs con CCCP}
+\begin{block}{}
+Nell'articolo presentato si adotta un'implementazione di TSVMs che utilizza la \textit{Concave-Convex Procedure} (CCCP) (Yuille e Rangarajan, 2002). La procedura CCCP ottimizza una funzione di costo non convessa che pu� essere espressa come somma di una parte concava e di una convessa. Il metodo garantisce che si trovi un minimo locale risolvendo iterativamente una sequenza di problemi convessi ottenuti approssimando la funzione concava nelle vicinanze della soluzione del problema convesso precedente. CCCP empiricamente scala come \alert{$(L+U)^2$ }(vedi sperimentazione).
+\end{block}
+\end{frame}
+
+\section{Formulazione del problema}
+
+\begin{frame}{Notazione}
+\begin{block}{}
+Consideriamo un insieme composto da $L$ esempi di training $\mathcal{L}= \{ (\textbf{x}_1,y_1),\ldots\, \textbf{x}_L,y_L)\}$, $\textbf{x} \in \mathbb{R}^n$, $y \in \{1,-1\}$ e un insieme di $U$ vettori di test (non  etichettati) $\mathcal{U}=\{ x_{L+1},\ldots, x_{L+U})\}$. Le SVMs hanno 
+funzione di decisione $f_\Theta(\cdot)$ nella forma:
+	\[f_\Theta(x)= w\cdot\Phi(x)+b,
+\]
+dove $\Theta = (\textbf{w},b)$ sono i parametri del modello, e $\Phi(\cdot)$ � la mappa delle feature scelta.
+\end{block}
+\end{frame}
+
+\begin{frame}{Formulazione TSVM}
+\begin{block}{}
+Dati un insieme di training $\mathcal{L}$ e un insieme di test $\mathcal{U}$, trovare tra i possibili vettori a valori binari
+	\[\{\mathcal{Y}= (y_{L+1},\ldots,y_{L+U}) \}
+\]
+quello tale che un SVM addestrata su $\mathcal{L}\cup(\mathcal{U}\times\mathcal{Y})$ presenta il margine pi� elevato.
+\end{block}
+\begin{block}<1-> {}
+Questo � un problema combinatorio che pu� essere approssimato trovando una SVM che separi il training set sotto vincoli che forzano gli esempi non etichettati ad essere il pi� distanti possibile dal margine.
+\end{block}
+\end{frame}
+
+
+
+\begin{frame}{Formulazione TSVM-2}
+\begin{block}{Formalizzazione}
+Il problema precedente pu� essere scritto come:
+	\[
+	\frac{1}{2}\|\textbf{w}\|^2+C\sum_{i=1}^{L}\xi_i+C^*\sum_{i=L+1}^{L+U}\xi_i,
+\]
+soggetto ai vincoli:
+	\[y_if_\Theta(\textbf{x}_i)\geq 1-\xi_i, \ i=1,\ldots, L
+\]
+	\[\left|f_\Theta(\textbf{x}_i)\right| \geq1-\xi_i, \ i=L+1,\ldots, L+U.
+\]
+\end{block}
+\end{frame}
+
+
+\begin{frame}{Formulazione TSVM-3}
+\begin{block}{}
+Il problema di minimizzazione precedente � equivalente a minimizzare:
+	
+\begin{equation}
+	J(\Theta)= \frac{1}{2}\left\|w\right\|^2+C\sum_{i=1}^{L}H_1(y_if_\Theta(\textbf{x}_i))+C^*\sum_{i=L+1}^{L+U}H_1(\left|f_\Theta(\textbf{x}_i)\right|),
+\end{equation}
+dove la funzione $H_1(\cdot)=max(0,1-\cdot)$ � la "'Hinge Loss"'
+\end{block}
+\end{frame}
+
+
+\begin{frame}{Formulazione TSVM-4}
+\begin{block}{}
+Le TSVMs che implementano la (1) utilizzano una "`Hinge Loss"' $H_1(\cdot)$ per i dati etichettati e una "`Symmetric Hinge Loss"'$H_1(|\cdot)|$ per quelli non etichettati.  Nell'implementazione del paper viene utilizzata un'ulteriore versione di questa funzione con la caratteristica di essere  \textit{non-peaky}.
+\end{block}
+\end{frame}
+
+
+
+
+\begin{frame}{Loss Function per TSVM}
+\begin{figure}[htbp]
+	\centering
+		\includegraphics[scale=0.2]{prova.png}
+	\caption{Loss Function per gli esempi non etichettati: Simmetric Hinge Loss (1) e la versione non-peaky (2).}
+	\label{fig:gres}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}{Symmetric Ramp Loss}
+\begin{block}{}
+Dato un esempio non etichettato $\textbf{x}$ e utilizzando la notazione $z=f_\Theta(\textbf{x})$ possiamo scrivere la Symmetric Ramp Loss come:
+\begin{equation}
+	z \mapsto R_s(z)+R_s(-z),
+\end{equation}
+dove $s<1$ � un iper-parametro opportuno e $R_s$ � detta "`Ramp Loss"', una versione \textsl{troncata} della Hinge Loss. Il parametro $s$ controlla dove avviene il \textsl{taglio} ovvero controlla l'ampiezza della parte piatta.
+\end{block}
+\end{frame}
+
+\begin{frame}{Ramp Loss }
+\begin{figure}[htbp]
+	\centering
+		\includegraphics[scale=0.35]{ramp_decomposition.png}
+	\caption{La Ramp Loss Function(1) pu� essere decomposta nella somma di una Hinge Loss convessa (2) e di una Loss concava (3).}
+	\label{fig:gres}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}{Formulazione finale}
+\begin{block}{}
+Introducendo:
+	\[y_i\ \ =\ 1\ i \in [L+1 \ldots L+U]
+	\]
+	\[y_i\ \ =\ -1\ i \in [L+U+1 \ldots L+2U]
+\]
+	\[\textbf{x}_{i+U}\ \ =\ \textbf{x}_i \ i \in [L+1 \ldots L+U]
+\]
+possiamo riscrivere la (1)come:
+\begin{equation}
+	J^s(\Theta)= \frac{1}{2}\left\|w\right\|^2+C\sum_{i=1}^{L}H_1(y_if_\Theta(\textbf{x}_i))+C^*\sum_{i=L+1}^{L+2U}R_s(y_if_\Theta(\textbf{x}_i)).
+\end{equation}
+\end{block}
+\end{frame}
+
+\begin{frame}{Vincolo di bilanciamento}
+\begin{block}{}
+Un problema che emerge con la formulazione precedente � la possibilit�, in presenza di pochi esempi di training, di classificare tutti gli esempi non etichettati come appartenenti ad una sola classe ottenendo un ampio margine ma pessime prestazioni. Per evitare questo problema introduciamo un ulteriore vincolo di bilanciamento per assicuraci che gli esempi siano assegnati ad entrambe le classi:
+\begin{equation}
+	\frac{1}{U} \sum_{i=L+1}^{L+U}{f_{\Theta}(\textbf{x}_i)}=\frac{1}{L} \sum_{i=1}^{L}{y_i}
+\end{equation}
+\end{block}
+\end{frame}
+
+\section{La procedura Concave-Convex per le TSVMS}
+
+\begin{frame}{La procedura Concave-Convex(CCCP)}
+Il problema (3) non � convesso. CCCP � una procedura per ottimizzare problemi non convessi. 
+Assumiamo che una funzione di costo $J(\Theta)$ possa essere riscritta come la somma di una parte convessa $J_{vex}(\Theta)$ e di una parte concava $J_{cav}(\Theta)$. Ogni iterazione della procedura CCCP approssima la parte concava con la sua tangente e minimizza la funzione convessa risultante.
+
+\begin{equation}
+	\Theta^{t+1}=\underset{\Theta}{\operatorname{arg\,min}}(J_{vex}(\Theta)+J_{cav}^{\prime}(\Theta^t)\cdot \Theta).
+\end{equation}
+
+\end{frame}
+
+
+\begin{frame}{CCCP-2}
+\begin{block}<1->{Algoritmo Iterativo}
+\begin{figure}[htbp]
+	\centering
+		\includegraphics[scale=0.35]{CCCP_procedure.png}
+	\label{fig:gres}
+\end{figure}
+\end{block}
+
+
+\begin{block}<1-> {}
+Si pu� dimostrare che:
+\begin{itemize}
+	\item<1->  $J(\Theta^t)$ decresce ad ogni iterazione;
+	\item<1-> la procedura converge ad un minimo locale.
+\end{itemize}
+\end{block}
+\end{frame}
+
+
+\begin{frame}{CCCP per TSVMs}
+\begin{block}{}
+La Ramp Loss pu� essere riscritta come differenza tra due Hinge Loss
+\begin{equation}
+	R_s(z)=H_1(z)-H_s(z)
+\end{equation}
+\'E quindi possibile applicare la procedura CCCP al problema di minimizzazione TSVM (3).Il costo $J^s(\Theta)$ pu� essere decomposto in una parte convessa $J^s_{vex}(\Theta)$ e in una parte concava $J^s_{cav}(\Theta)$
+\end{block}
+\end{frame}
+
+\begin{frame}{CCCP per TSVMs-2}
+\begin{block}{}
+\begin{equation}
+\begin{split}
+J^s(\Theta)& =\frac{1}{2}\left\|w\right\|^2+C\sum_{i=1}^{L}H_1(y_if_\Theta(\textbf{x}_i))+C^*\sum_{i=L+1}^{L+2U}R_s(y_if_\Theta(\textbf{x}_i))=\\
+ & =\underbrace{\frac{1}{2}\left\|w\right\|^2+C\sum_{i=1}^{L}H_1(y_if_\Theta(\textbf{x}_i))+C^*\sum_{i=L+1}^{L+2U}H_1(y_if_\Theta(\textbf{x}_i))-}_{J^s_{vex}(\Theta)}\\
+ &\underbrace{-C^*\sum_{i=L+1}^{L+2U}H_s(y_if_\Theta(\textbf{x}_i))}_{J^s_{cav}(\Theta)}.
+\end{split}
+\end{equation}
+\end{block}
+\end{frame}
+
+\begin{frame}{CCCP per TSVMs-3}
+\begin{block}{}
+La decomposizione precedente permette di applicare la procedura CCCP. Il problema convesso alla base della procedura viene espresso utilizzando le variabili duali $\boldsymbol\alpha$. Dobbiamo anche implementare il vincolo di bilanciamento (4). 
+Per semplificare l'approssimazione del primo ordine della parte concava, denotiamo:
+\begin{equation}
+\beta_i\ \  =\ \ 	\frac{\partial J_{cav}^{s}(\Theta)}{\partial f_{\Theta}(x_i)} \ \  = \ \ 
+\begin{cases} 
+C^* & \text{if } y_if_\Theta(\textbf{x}_i) \\
+0 & \text{altrimenti }
+\end{cases},
+\end{equation}
+per gli esempi non etichettati ($\beta_i=0$ per $i \leq L$).
+\end{block}
+\end{frame}
+
+
+\begin{frame}{CCCP per TSVMs-4}
+\begin{figure}[htbp]
+	\centering
+		\includegraphics[scale=0.32]{alg2.png}
+	\label{fig:gres}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Complessit�}
+\begin{block}{}
+Addestrare con la procedura CCCP-TSVM richiede la risoluzione di una serie di problemi di ottimizzazione SVM con ($L+2U$) variabili. Sebbene SVM abbia complessit� $ \mathcal{O} (L+2U)^3)$ nel caso peggiore, nel caso tipico scala quadraticamente e lo stesso vale per i sottoproblemi di TSVMs. Assumendo un numero costante di iterazioni TSVMs con CCCP dovrebbero scalare quadraticamente nella maggior parte dei casi.
+\end{block}
+\end{frame}
+
+
+\section{Sperimentazione}
+
+\begin{frame}{Esperimenti eseguiti}
+\begin{block}{}
+Si sono condotti esperimenti sul database MNIST trattato come un problema a 10-classi. Il dataset ha 42k esempi di training, 18k di validation e 10k di test. Il training set � stato campionato per ottenere il punti etichettati ed � stato usato il training set per gli esempi non etichettati. Abbiamo replicato il set-up del paper ovvero:
+\begin{itemize}
+	\item <1-> $C=10$ e $\gamma = 0.0128$ con kernel RBF;
+	\item <1-> $C^*$ variabile con il numero di esempi non etichettati e $s=0.01$.
+\end{itemize}
+L'errore � stato valutato sul validation test.
+\end{block}
+\end{frame}
+
+\begin{frame}
+\begin{figure}[htbp]
+	\centering
+		\includegraphics[scale=1.]{result.png}
+	\caption{Andamento dell'errore al variare del numero di dati non etichettati. Con $0$ dati non etichettati si intende SVM induttivo}
+	\label{fig:gres}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\begin{figure}[htbp]
+	\centering
+		\includegraphics[scale=1.]{tempo.png}
+	\caption{Andamento del tempo di ottimizzazione al variare del numero di dati non etichettati.}
+	\label{fig:gres}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}{Commento dei risultati}
+\begin{block}{}
+Dal grafico dell'errore si nota che l'\alert{aggiunta di dati non etichettati porta ad un significativo miglioramento delle prestazioni}. A meno di uno scarto medio dell' $1,71\%$ l'andamento dell'errore degli esperimenti effettuati � lo stesso di quelli riportati nel paper. Dal grafico dei tempi di vede chiaramente che il tempo di ottimizzazione ha un andamento \alert{quadratico} con il numero dei dati non etichettati confermando le ipotesi fatte in precedenza.
+\end{block}
+\end{frame}
+
+\begin{frame}{SSL Vs Transductive Learning}
+\begin{block}{}
+Se si considera l'apprendimento trasduttivo come una versione di SSL dove i dati non etichettati sono il test set di interesse, � possibile comparare le prestazioni dei due approcci. L'esperimento prevede l'utilizzo di dati non etichettati diversi dal test set per l'SSL. Nello specifico abbiamo utilizzato 10000 punti non etichettati, un test set di 10000 punti e un training set di 1000 punti. I risultati ottenuti:
+\begin{itemize}
+	\item<1-> Testing error SSL: \alert{$6,944 \%$};
+	\item<1-> Testing error Transductive: \alert{$6,350 \%$}.
+\end{itemize}
+\end{block}
+\end{frame}
+
+\section{Osservazioni Finali}
+
+
+\begin{frame}{Considerazioni}
+\begin{block}{}
+\begin{itemize}
+	\item<1-> Si � verificato che l'utilizzo di dati non etichettati migliora le prestazioni di un classificatore induttivo.
+	\item<1-> Comunque il trade-off tra costi computazionali e benefici non � soddisfacente.
+	\item<1-> Dal momento che l'algoritmo ottimizza problemi SVMs standard, ogni miglioramento delle tecniche di risoluzione di questi si riflette immediatamente sulle TSVMs.  
+	\item<1-> Interessante l'approccio trasduttivo in particolari situazioni.
+\end{itemize}
+\end{block}
+\end{frame}
+
+
+
+
+\section{Bibliografia}
+
+\begin{frame}
+	\frametitle{Bibliografia}
+	
+		\begin{thebibliography}{}
+		%
+%			\bibitem<1->[Solomaa, 1973]{Solomaa1973}
+%				A.~Salomaa.
+%				\newblock {\em Formal Languages}.
+%				\newblock Academic Press, 1973.
+				\footnotesize
+				
+				\bibitem<1->[Solomaa, 1973]{Solomaa1973}
+			 	Collobert R. and Sinz F. and et al.  
+				\newblock {\em Large Scale Transductive SVMs}.
+				
+				\bibitem<1->[Solomaa, 1973]{Solomaa1973}
+				Schlkopf, Bernhard   and Smola, Alexander  J. 
+				\newblock {\em Learning with Kernels: Support Vector Machines, Regularization, 		 Optimization, and Beyond (Adaptive Computation and Machine Learning).}
+				\newblock The MIT Press, 2001.
+				
+				\bibitem<1->[Solomaa, 1973]{Solomaa1973}
+				Chapelle, O.  and Sch\"{o}lkopf, B.  and Zien, A. 
+				\newblock {\em Semi-Supervised Learning (Adaptive Computation and Machine Learning)}.
+				\newblock The MIT Press, 2006.
+
+
+\end{thebibliography}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Bibliografia}
+	
+		\begin{thebibliography}{}
+				\footnotesize
+				\bibitem<1->[Solomaa, 1973]{Solomaa1973}
+				Yuille A. L. and Rangarajan A. 
+				\newblock {\em The concave-convex procedure (CCCP)}.
+				\newblock The MIT Press, 2002.
+				
+				
+				\bibitem<1->[Solomaa, 1973]{Solomaa1973}
+				Vapnik, Vladimir  N.  
+				\newblock {\em The Nature of Statistical Learning Theory}.
+				\newblock Springer, 1999.
+				
+				
+					
+				\bibitem<1->[Solomaa, 1973]{Solomaa1973}
+			   N. Cristianini and J. Shawe-Taylor.
+				\newblock {\em Kernel Methods for Pattern 
+Analysis}.
+				\newblock Cambridge Univ. Press, 2004.
+				
+				
+				
+				
+				
+			
+				
+
+\end{thebibliography}
+\end{frame}
+
+\end{document}
+
