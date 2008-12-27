@@ -229,7 +229,7 @@ Per via sperimentale, si \`e stabilito la posizione iniziale e il numero dei cen
 
 \subsection{Definizione}
 
-\begin{frame}
+\begin{frame}{HMM}
  \begin{block}{}
   Con HMM \`e possibile affrontare problemi del tipo ``modellare la probabilit\`a $P(X)$ di una sequenza di osservazioni $X$''.\\
 Nel nostro caso, le sequenze osservate sono costituite dai vettori di accelerazioni quantizzati in un numero finito di simboli.
@@ -237,9 +237,7 @@ Nel nostro caso, le sequenze osservate sono costituite dai vettori di accelerazi
 
  \begin{block}{}
   Si assume che la sequenza osservata sia generata da una sequenza $S$ di variabili nascoste, chiamate stati.
- \end{block}
 
- \begin{block}{}
   Altra assunzione fondamentale \`e che ``il futuro \`e indipendente dal passato, dato il presente'', ovvero vale: \\
 $S[t+1] \perp S[1], S[2], \ldots, S[t-1], X[1], X[2], \ldots, X[t] | S[t]$ \\
 $X[t+1] \perp S[1], S[2], \ldots, S[t], X[1], X[2], \ldots, X[t] | S[t+1]$
@@ -247,7 +245,83 @@ $X[t+1] \perp S[1], S[2], \ldots, S[t], X[1], X[2], \ldots, X[t] | S[t+1]$
 \end{frame}
 
 
-\subsection{Riconoscimento}
+\begin{frame}{Elementi di un HMM}
+ \begin{block}{}
+  Un HMM $\lambda = (\pi, A, B)$ \`e caratterizzato da:
+	\begin{itemize}
+		\item $N$, il numero di stati (nascosti) nel modello
+		\item $M$, il numero di distinti simboli osservabili (alfabeto)
+	 \item $\pi = \{\pi_{i}\}$, con $\pi_{i} = P[q_{1} = S_{i}]$, \`e il vettore delle probabilit\`a iniziali degli stati
+ 	 \item $A = \{a_{ij}\}$, con $a_{ij} = P[q_{t+1} = S_{j} | q_{t} = S_{i}]$, \`e la matrice di transizione tra gli stati
+ 	 \item $B = \{b_{jk}\}$, con $b_{jk} = P[$\textit{osservo il simbolo }$v_{k}$\textit{ al tempo }$t | q_{t} = S_{j}]$, \`e la matrice di emissione (essendo il modello stazionario, $B$ \`e indipendente dal tempo)
+	\end{itemize}
+
+ \end{block}
+
+\end{frame}
+
+\begin{frame}{I 3 problemi di base}
+ \begin{block}{}
+  Ci sono 3 problemi la cui risoluzione \`e indispensabile affinch\`e il modello risulti utilizzabile in applicazioni reali:
+	\begin{enumerate}
+	 \item \textit{\textbf{Prediction}}: data una sequenza di simboli $V = \{v_{1}, \ldots, v_{T}\}$ e un modello $\lambda$, calcolare la \textit{likelihood} $P(V|\lambda)$
+	 \item \textbf{\textit{Learning}}: date una o pi\`u sequenze di training, calcolare i parametri del modello $\lambda$ che meglio spiegano i dati
+	 \item \textit{\textbf{Decoding}}: data una sequenza di simboli $V = \{v_{1}, \ldots, v_{T}\}$ e un modello $\lambda$, determinare la pi\`u probabile sequenza di stati che possa aver generato i simboli dati
+	\end{enumerate}
+ \end{block}
+\end{frame}
+
+\subsection{Prediction}
+
+\begin{frame}{Soluzione al problema 1}
+ \begin{block}{}
+  Vogliamo calcolare la probabilit\`a di una sequenza di osservazioni $O = O_{1}, O_{2}, \ldots, O_{T}$ dato il modello $\lambda$, ossia $P(O|\lambda)$. \\
+Il modo pi\`u immediato di farlo comporterebbe enumerare tutte le possibili sequenze di stati $Q_{k}$, sommando poi le probabilit\`a condizionate $P(O|Q_{k},\lambda) \cdot P(Q_{k}|\lambda)$, ma arriverebbe ad avere una complessit\`a intrattabile (dell'ordine di $2T \cdot N^{T}$).\\
+Pertanto, si ricorre alla \textit{Forward-Backward Procedure}, che vedremo avere una complessit\`a dell'ordine di $N^2 \cdot T$.
+ \end{block}
+
+\end{frame}
+
+\begin{frame}{The Forward-Backward Procedure}
+ \begin{block}{}
+  Definiamo la variabile forward $\alpha_{t}(i)$ come:
+	\begin{center}
+	$\alpha_{t}(i) = P(O_{1}, O_{2}, \cdots, O_{t}, q_{t} = S_{i}|\lambda)$
+	\end{center}
+ossia la probabilit\`a di osservare $O_{1}, \cdots, O_{t}$ (sequenza parziale) ed essere nello stato $S_{i}$ al tempo $t$, dato il modello $\lambda$.
+ \end{block}
+ \begin{block}{}
+ \begin{columns}[c]
+   \begin{column}[t]{8.5cm}
+	Procediamo per induzione su $\alpha_{t}(i)$:
+	\begin{enumerate}
+ 	\item Inizializzazione: $\alpha_{1}(i) = \pi_{i}b_{i}(O_{1})$
+	\item Induzione: $\alpha_{t+1}(j) = (\sum_{i = 1}^{N} \alpha_{t}(i)a_{ij}) \cdot b_{j}(O_{t+1})$
+	\item Terminazione: $P(O|\lambda) = \sum_{i=1}^{N}\alpha_{T}(i)$
+	\end{enumerate}
+    
+   \end{column}
+   \begin{column}[T]{1.5cm}
+	\begin{figure}[l]
+	\centering
+	\includegraphics[scale=0.25]{alpha.png}
+	\label{fig:alpha}
+ \end{figure}
+    
+   \end{column}
+
+ \end{columns}
+
+  
+
+ \end{block}
+
+
+\end{frame}
+
+
+
+\subsection{Learning}
 
 \begin{frame}
  \begin{block}{}
@@ -255,21 +329,10 @@ $X[t+1] \perp S[1], S[2], \ldots, S[t], X[1], X[2], \ldots, X[t] | S[t+1]$
  \end{block}
 
 \end{frame}
-
-
-\subsection{Apprendimento}
-
-\begin{frame}
- \begin{block}{}
-  blah
- \end{block}
-
-\end{frame}
-\subsection{Decodifica}
+\subsection{Decoding}
 
 \begin{frame}{La procedura Concave-Convex(CCCP)}
-Il problema (3) non � convesso. CCCP � una procedura per ottimizzare problemi non convessi. 
-Assumiamo che una funzione di costo $J(\Theta)$ possa essere riscritta come la somma di una parte convessa $J_{vex}(\Theta)$ e di una parte concava $J_{cav}(\Theta)$. Ogni iterazione della procedura CCCP approssima la parte concava con la sua tangente e minimizza la funzione convessa risultante.
+
 
 \begin{equation}
 	\Theta^{t+1}=\underset{\Theta}{\operatorname{arg\,min}}(J_{vex}(\Theta)+J_{cav}^{\prime}(\Theta^t)\cdot \Theta).
@@ -415,8 +478,6 @@ Se si considera l'apprendimento trasduttivo come una versione di SSL dove i dati
 
 
 
-
-\section{Bibliografia}
 
 \begin{frame}
 	\frametitle{Bibliografia}
