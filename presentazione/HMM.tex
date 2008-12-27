@@ -302,45 +302,115 @@ ossia la probabilit\`a di osservare $O_{1}, \cdots, O_{t}$ (sequenza parziale) e
     
    \end{column}
    \begin{column}[T]{1.5cm}
-	\begin{figure}[l]
-	\centering
+	\begin{figure}[ht]
 	\includegraphics[scale=0.25]{alpha.png}
 	\label{fig:alpha}
  \end{figure}
+   \end{column}
+ \end{columns}
+ \end{block}
+\end{frame}
+
+\begin{frame}
+ \begin{block}{}
+  Definiamo la variabile backward $\beta_{t}(i)$ come segue:
+\begin{center}
+ $\beta_{t}(i) = P(O_{t+1}, O_{t+2}, \ldots, O_{T} | q_{t} = S_{i}, \lambda)$
+\end{center}
+ossia, la probabilit\`a di osservare la parte finale della sequenza, da $t+1$ fino alla fine, dato lo stato $S_{i}$ al tempo $t$ e il modello $\lambda$.
+ \end{block}
+\begin{block}{}
+ \begin{columns}[c]
+   \begin{column}[h]{8cm}
+	Procediamo per induzione su $\beta_{t}(i)$:
+	\begin{enumerate}
+ 	\item Inizializzazione: $\beta_{T}(i) = 1$
+	\item Induzione: $\beta_{t}(i) = \sum_{j = 1}^{N} a_{ij}b_{j}(O_{t+1})\beta_{t+1}(j)$
+	\end{enumerate}
     
    \end{column}
-
+   \begin{column}[T]{2cm}
+	\begin{figure}[ht]
+	\includegraphics[scale=0.3]{beta.png}
+	\label{fig:beta}
+ \end{figure}
+   \end{column}
  \end{columns}
-
-  
-
  \end{block}
-
-
+ 
 \end{frame}
 
 
 
 \subsection{Learning}
 
+\begin{frame}{Soluzione al problema 2}
+ \begin{block}{}
+  Non si conosce un metodo analitico per determinare il modello che massimizza la probabilit\`a della sequenza data.\\
+  Si pu\`o usare l'algoritmo di Baum-Welch per massimizzare localmente $P(O|\lambda)$.
+ \end{block}
+ \begin{block}{}
+  Definiamo la variabile $\xi_{t}(i,j) = P(q_{t} = S_{i}, q_{t+1} = S_{j}|O,\lambda)$ \\
+ovvero la probabilit\`a di trovarsi nello stato $S_{i}$ al tempo $t$ e nello stato $S_{j}$ al tempo $t+1$, dati $O$ e $\lambda$.\\
+Possiamo esprimerla in funzione delle variabili forward e backward:\\
+\begin{center}
+$ \xi_{t}(i,j) = \frac{\alpha_{t}(i)a_{ij}b_{j}(O_{t+1})\beta_{t+1}(j)}{P(O|\lambda)} $                                        \end{center}
+ \end{block}
+\end{frame}
+
+\begin{frame}{}
+\begin{block}{}
+Definiamo la variabile $\gamma_{t}(i) = P(q_{t} = S_{i}|O,\lambda)$, ossia la probabilit\`a di trovarsi nello stato $S_{i}$ al tempo $t$ dati $O$ e $\lambda$.\\
+Questa pu\`o essere ricavata dalle variabili forward e backward come segue:
+ \begin{equation}
+	\gamma_{t}(i) = \frac{\alpha_{t}(i)\beta_{t}(i)}{P(O|\lambda)}
+\end{equation}
+e in funzione della variabile $\xi_{t}(i,j)$:
+ \begin{equation}
+	\gamma_{t}(i) = \sum_{j=1}^{N}\xi_{t}(i,j)
+\end{equation}
+
+\end{block}
+\end{frame}
+
 \begin{frame}
  \begin{block}{}
-  blah
+  Sommando $\gamma_{t}(i)$ rispetto a $t$, si ottiene una quantit\`a che indica il numero atteso di volte che passeremo per lo stato $S_{i}$. Analogamente, la somma di $\xi_{t}(i,j)$ su $t$ pu\`o essere interpretata come il numero (atteso) di transizioni tra $S_{i}$ e $S_{j}$. Pertanto:
+\begin{center}
+ $\sum_{t=1}^{T-1}\gamma_{t}(i) =$ numero atteso di transizioni da $S_{i}$
+\end{center}
+\begin{center}
+ $\sum_{t=1}^{T-1}\xi_{t}(i,j) =$ numero atteso di transizioni da $S_{i}$ a $S_{j}$
+\end{center}
+ \end{block}
+
+\begin{block}{}
+ Usando le formule appena introdotte e il concetto di conteggiare le occorrenze degli eventi ai fini di stimare le probabilit\`a, \`e possibile fornire un metodo per la ristima dei parametri dell'HMM.
+\end{block}
+\end{frame}
+
+\begin{frame}
+ \begin{block}{Formule di ristima dei parametri}
+ \begin{center}
+$\overline{\pi_{i}} = numero\ atteso\ di\ volte\ in\ stato\ S_{i}\ al\ tempo\ 1 = \gamma_{1}(i)$
+\end{center}
+
+\begin{center}
+ $\overline{a_{ij}} = \dfrac{numero\ atteso\ di\ transizioni\ da\ S_{i}\ a\ S_{j}}{numero\ atteso\ di\ transizioni\ da\ S_{i}} = \frac{\sum_{t=1}^{T-1}\xi_{t}(i,j)}{\sum_{t=1}^{T-1}\gamma_{t}(i)}$
+\end{center}
+
+\begin{center}
+ $ \overline{b_{j}(k)} = \dfrac{numero\ atteso\ di\ volte\ in S_{j}\ osservando\ il\ simbolo\ v_{k}}{numero\ atteso\ di\ volte\ mello\ stato\ S_{j}} = \frac{\sum_{t=1, s.t. O_{t} = v_{k}}^{T}\gamma_{t}(j)}{\sum_{t=1}^{T}\gamma_{t}(j)}$
+\end{center}
+
  \end{block}
 
 \end{frame}
+
+
+
+
 \subsection{Decoding}
-
-\begin{frame}{La procedura Concave-Convex(CCCP)}
-
-
-\begin{equation}
-	\Theta^{t+1}=\underset{\Theta}{\operatorname{arg\,min}}(J_{vex}(\Theta)+J_{cav}^{\prime}(\Theta^t)\cdot \Theta).
-\end{equation}
-
-\end{frame}
-
-
 \begin{frame}{CCCP-2}
 \begin{block}<1->{Algoritmo Iterativo}
 %\begin{figure}[htbp]
