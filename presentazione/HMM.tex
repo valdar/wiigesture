@@ -275,8 +275,12 @@ $X[t+1] \perp S[1], S[2], \ldots, S[t], X[1], X[2], \ldots, X[t] | S[t+1]$
 
 \begin{frame}{Soluzione al problema 1}
  \begin{block}{}
-  Vogliamo calcolare la probabilit\`a di una sequenza di osservazioni $O = O_{1}, O_{2}, \ldots, O_{T}$ dato il modello $\lambda$, ossia $P(O|\lambda)$. \\
-Il modo pi\`u immediato di farlo comporterebbe enumerare tutte le possibili sequenze di stati $Q_{k}$, sommando poi le probabilit\`a condizionate $P(O|Q_{k},\lambda) \cdot P(Q_{k}|\lambda)$, ma arriverebbe ad avere una complessit\`a intrattabile (dell'ordine di $2T \cdot N^{T}$).\\
+  Vogliamo calcolare la probabilit\`a della sequenza di osservazioni $O = (O_{1}, O_{2}, \ldots, O_{T}$) dato il modello $\lambda$, ossia $P(O|\lambda)$.
+ \end{block}
+\begin{block}{}
+Il modo pi\`u immediato di farlo comporterebbe enumerare tutte le possibili sequenze di stati $Q_{k}$, sommando poi le probabilit\`a condizionate $P(O|Q_{k},\lambda) \cdot P(Q_{k}|\lambda)$, ma arriverebbe ad avere una complessit\`a intrattabile (dell'ordine di $2T \cdot N^{T}$).
+ \end{block}
+\begin{block}{}
 Pertanto, si ricorre alla \textit{Forward-Backward Procedure}, che vedremo avere una complessit\`a dell'ordine di $N^2 \cdot T$.
  \end{block}
 
@@ -400,153 +404,70 @@ $\overline{\pi_{i}} = numero\ atteso\ di\ volte\ in\ stato\ S_{i}\ al\ tempo\ 1 
 \end{center}
 
 \begin{center}
- $ \overline{b_{j}(k)} = \dfrac{numero\ atteso\ di\ volte\ in S_{j}\ osservando\ il\ simbolo\ v_{k}}{numero\ atteso\ di\ volte\ mello\ stato\ S_{j}} = \frac{\sum_{t=1, s.t. O_{t} = v_{k}}^{T}\gamma_{t}(j)}{\sum_{t=1}^{T}\gamma_{t}(j)}$
+ $ \overline{b_{j}(k)} = \dfrac{numero\ atteso\ di\ volte\ in\ S_{j}\ osservando\ il\ simbolo\ v_{k}}{numero\ atteso\ di\ volte\ nello\ stato\ S_{j}} = \frac{\sum_{t=1, s.t. O_{t} = v_{k}}^{T}\gamma_{t}(j)}{\sum_{t=1}^{T}\gamma_{t}(j)}$
 \end{center}
 
  \end{block}
-
 \end{frame}
-
-
 
 
 \subsection{Decoding}
-\begin{frame}{CCCP-2}
-\begin{block}<1->{Algoritmo Iterativo}
-%\begin{figure}[htbp]
-%	\centering
-%		\includegraphics[scale=0.35]{CCCP_procedure.png}
-%	\label{fig:gres}
-%\end{figure}
-\end{block}
-
-
-\begin{block}<1-> {}
-Si pu� dimostrare che:
-\begin{itemize}
-	\item<1->  $J(\Theta^t)$ decresce ad ogni iterazione;
-	\item<1-> la procedura converge ad un minimo locale.
-\end{itemize}
-\end{block}
-\end{frame}
-
-
-\begin{frame}{CCCP per TSVMs}
-\begin{block}{}
-La Ramp Loss pu� essere riscritta come differenza tra due Hinge Loss
-\begin{equation}
-	R_s(z)=H_1(z)-H_s(z)
-\end{equation}
-\'E quindi possibile applicare la procedura CCCP al problema di minimizzazione TSVM (3).Il costo $J^s(\Theta)$ pu� essere decomposto in una parte convessa $J^s_{vex}(\Theta)$ e in una parte concava $J^s_{cav}(\Theta)$
-\end{block}
-\end{frame}
-
-\begin{frame}{CCCP per TSVMs-2}
-\begin{block}{}
-\begin{equation}
-\begin{split}
-J^s(\Theta)& =\frac{1}{2}\left\|w\right\|^2+C\sum_{i=1}^{L}H_1(y_if_\Theta(\textbf{x}_i))+C^*\sum_{i=L+1}^{L+2U}R_s(y_if_\Theta(\textbf{x}_i))=\\
- & =\underbrace{\frac{1}{2}\left\|w\right\|^2+C\sum_{i=1}^{L}H_1(y_if_\Theta(\textbf{x}_i))+C^*\sum_{i=L+1}^{L+2U}H_1(y_if_\Theta(\textbf{x}_i))-}_{J^s_{vex}(\Theta)}\\
- &\underbrace{-C^*\sum_{i=L+1}^{L+2U}H_s(y_if_\Theta(\textbf{x}_i))}_{J^s_{cav}(\Theta)}.
-\end{split}
-\end{equation}
-\end{block}
-\end{frame}
-
-\begin{frame}{CCCP per TSVMs-3}
-\begin{block}{}
-La decomposizione precedente permette di applicare la procedura CCCP. Il problema convesso alla base della procedura viene espresso utilizzando le variabili duali $\boldsymbol\alpha$. Dobbiamo anche implementare il vincolo di bilanciamento (4). 
-Per semplificare l'approssimazione del primo ordine della parte concava, denotiamo:
-\begin{equation}
-\beta_i\ \  =\ \ 	\frac{\partial J_{cav}^{s}(\Theta)}{\partial f_{\Theta}(x_i)} \ \  = \ \ 
-\begin{cases} 
-C^* & \text{if } y_if_\Theta(\textbf{x}_i) \\
-0 & \text{altrimenti }
-\end{cases},
-\end{equation}
-per gli esempi non etichettati ($\beta_i=0$ per $i \leq L$).
-\end{block}
-\end{frame}
-
-
-\begin{frame}{CCCP per TSVMs-4}
-%\begin{figure}[htbp]
-%	\centering
-%		\includegraphics[scale=0.32]{alg2.png}
-%	\label{fig:gres}
-%\end{figure}
-\end{frame}
-
-\begin{frame}{Complessit\`a}
-\begin{block}{}
-Addestrare con la procedura CCCP-TSVM richiede la risoluzione di una serie di problemi di ottimizzazione SVM con ($L+2U$) variabili. Sebbene SVM abbia complessit� $ \mathcal{O} (L+2U)^3)$ nel caso peggiore, nel caso tipico scala quadraticamente e lo stesso vale per i sottoproblemi di TSVMs. Assumendo un numero costante di iterazioni TSVMs con CCCP dovrebbero scalare quadraticamente nella maggior parte dei casi.
+\begin{frame}{Viterbi}
+\begin{block}<1->{}
+viterbi
 \end{block}
 \end{frame}
 
 
 \section{Decisore}
 
-\begin{frame}{Esperimenti eseguiti}
+\begin{frame}{Riconoscimento della gesture}
 \begin{block}{}
-Si sono condotti esperimenti sul database MNIST trattato come un problema a 10-classi. Il dataset ha 42k esempi di training, 18k di validation e 10k di test. Il training set è stato campionato per ottenere il punti etichettati ed � stato usato il training set per gli esempi non etichettati. Abbiamo replicato il set-up del paper ovvero:
 \begin{itemize}
-	\item <1-> $C=10$ e $\gamma = 0.0128$ con kernel RBF;
-	\item <1-> $C^*$ variabile con il numero di esempi non etichettati e $s=0.01$.
+ \item Per ciascuna classe di gesture che si intende riconoscere, si addestra un distinto HMM.
+ \item Data una gesture $O$ da riconoscere, questa viene sottoposta a ciascun modello $\lambda_{i}$, e tramite la procedura Forward si calcolano le probabilit\`a $P(O|\lambda_{i})$.
+ \item La gesture viene attribuita alla classe relativa all'HMM che produce la probabilit\`a maggiore (se almeno una di queste supera una soglia minima, altrimenti la gesture viene classificata come ``sconosciuta'').
 \end{itemize}
-L'errore � stato valutato sul validation test.
+
 \end{block}
 \end{frame}
 
 \begin{frame}
-%\begin{figure}[htbp]
-%	\centering
-%		\includegraphics[scale=1.]{result.png}
-%	\caption{Andamento dell'errore al variare del numero di dati non etichettati. Con $0$ dati non etichettati si intende SVM induttivo}
-%	\label{fig:gres}
-%\end{figure}
-\end{frame}
-
-\begin{frame}
-%\begin{figure}[htbp]
-%	\centering
-%		\includegraphics[scale=1.]{tempo.png}
-%	\caption{Andamento del tempo di ottimizzazione al variare del numero di dati non etichettati.}
-%	\label{fig:gres}
-%\end{figure}
-\end{frame}
-
-
-\begin{frame}{Commento dei risultati}
 \begin{block}{}
-Dal grafico dell'errore si nota che l'\alert{aggiunta di dati non etichettati porta ad un significativo miglioramento delle prestazioni}. A meno di uno scarto medio dell' $1,71\%$ l'andamento dell'errore degli esperimenti effettuati � lo stesso di quelli riportati nel paper. Dal grafico dei tempi di vede chiaramente che il tempo di ottimizzazione ha un andamento \alert{quadratico} con il numero dei dati non etichettati confermando le ipotesi fatte in precedenza.
+ Quello che vogliamo sapere \`e la probabilit\`a, data una classe $C_{i}$, che la sequenza $O$ appartenga a tale classe, ovvero $P(C_{i}|O)$.
 \end{block}
-\end{frame}
-
-\begin{frame}{SSL Vs Transductive Learning}
 \begin{block}{}
-Se si considera l'apprendimento trasduttivo come una versione di SSL dove i dati non etichettati sono il test set di interesse, � possibile comparare le prestazioni dei due approcci. L'esperimento prevede l'utilizzo di dati non etichettati diversi dal test set per l'SSL. Nello specifico abbiamo utilizzato 10000 punti non etichettati, un test set di 10000 punti e un training set di 1000 punti. I risultati ottenuti:
-\begin{itemize}
-	\item<1-> Testing error SSL: \alert{$6,944 \%$};
-	\item<1-> Testing error Transductive: \alert{$6,350 \%$}.
-\end{itemize}
+ La procedura Forward ci permette invece di determinare $P(O|C_{i})$, ma vale
+
+\begin{center}$P(C_{i}|O) = \frac{P(O|C_{i})P(C_{i})}{P(O)}$\end{center}
+
+\end{block}
+\begin{block}{}
+ Pertanto, per prendere la decisione, dovremmo scegliere la $P(O|C_{i})P(C_{i})$ massima. Possiamo per\`o limitarci a decidere sulla base della sola $P(O|C_{i})$ in quanto si assume che ciascuna classe di gesture sia equiprobabile.
 \end{block}
 \end{frame}
 
 \section{Test e risultati}
 
-
-\begin{frame}{Considerazioni}
+\begin{frame}{Test eseguiti}
 \begin{block}{}
 \begin{itemize}
-	\item<1-> Si � verificato che l'utilizzo di dati non etichettati migliora le prestazioni di un classificatore induttivo.
-	\item<1-> Comunque il trade-off tra costi computazionali e benefici non � soddisfacente.
-	\item<1-> Dal momento che l'algoritmo ottimizza problemi SVMs standard, ogni miglioramento delle tecniche di risoluzione di questi si riflette immediatamente sulle TSVMs.  
-	\item<1-> Interessante l'approccio trasduttivo in particolari situazioni.
+\item Si \`e messo alla prova il software su 3 classi di gesture: triangolo, quadrato e zeta.
+\item La topologia utilizzata \`e quella left-to-right, con span 2 e 5 diversi stati (combinazione di parametri che ha prodotto i risultati migliori).
+\item Il dataset utilizzato comprende circa 50 gesture per classe, eseguite da 2 persone distinte.
+\item La valutazione delle prestazioni \`e stata effettuata tramite 3-fold cross validation.
 \end{itemize}
+
 \end{block}
 \end{frame}
 
-
+\begin{frame}{Risultati}
+  \begin{figure}[ht]
+	\centering
+	\includegraphics[scale=0.32]{risultati.png}
+	\label{fig:risultati}
+  \end{figure}
+\end{frame}
 
 
 \begin{frame}
@@ -560,54 +481,20 @@ Se si considera l'apprendimento trasduttivo come una versione di SSL dove i dati
 %				\newblock Academic Press, 1973.
 				\footnotesize
 				
-				\bibitem<1->[Solomaa, 1973]{Solomaa1973}
-			 	Collobert R. and Sinz F. and et al.  
-				\newblock {\em Large Scale Transductive SVMs}.
+				\bibitem<1->[Rabiner, 1989]{Rabiner1973}
+			 	Lawrence R. Rabiner
+				\newblock {\em A Tutorial on Hidden Markov Models and Selected Applications in Speech Recognition}.
 				
-				\bibitem<1->[Solomaa, 1973]{Solomaa1973}
-				Schlkopf, Bernhard   and Smola, Alexander  J. 
-				\newblock {\em Learning with Kernels: Support Vector Machines, Regularization, 		 Optimization, and Beyond (Adaptive Computation and Machine Learning).}
-				\newblock The MIT Press, 2001.
+				\bibitem<1->[HAH, 2001]{HAH2001}
+				Xuedong Huang, Alex Acero, Hsiao-Wuen Hon
+				\newblock {\em Spoken Language processing. A guide to theory, algorithm and system development.}
+				\newblock Prentice Hall, 2001
 				
-				\bibitem<1->[Solomaa, 1973]{Solomaa1973}
-				Chapelle, O.  and Sch\"{o}lkopf, B.  and Zien, A. 
-				\newblock {\em Semi-Supervised Learning (Adaptive Computation and Machine Learning)}.
-				\newblock The MIT Press, 2006.
+				\bibitem<1->[Mantyla, 2001]{Mantyla2001}
+				Vesa-Matti M\"{a}ntyl\"{a} 
+				\newblock {\em Discrete Hidden Markov Models with application to isolated user-dependent hand gesture recognition}.
+				\newblock VTT Publications, 2001
 
-
-\end{thebibliography}
-\end{frame}
-
-\begin{frame}
-	\frametitle{Bibliografia}
-	
-		\begin{thebibliography}{}
-				\footnotesize
-				\bibitem<1->[Solomaa, 1973]{Solomaa1973}
-				Yuille A. L. and Rangarajan A. 
-				\newblock {\em The concave-convex procedure (CCCP)}.
-				\newblock The MIT Press, 2002.
-				
-				
-				\bibitem<1->[Solomaa, 1973]{Solomaa1973}
-				Vapnik, Vladimir  N.  
-				\newblock {\em The Nature of Statistical Learning Theory}.
-				\newblock Springer, 1999.
-				
-				
-					
-				\bibitem<1->[Solomaa, 1973]{Solomaa1973}
-			   N. Cristianini and J. Shawe-Taylor.
-				\newblock {\em Kernel Methods for Pattern 
-Analysis}.
-				\newblock Cambridge Univ. Press, 2004.
-				
-				
-				
-				
-				
-			
-				
 
 \end{thebibliography}
 \end{frame}
