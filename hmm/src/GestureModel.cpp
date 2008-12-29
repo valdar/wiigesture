@@ -38,8 +38,8 @@ Quantizer2* GestureModel::getQuantizer(){
     return this->quant;
 }
 
-void GestureModel::trainQuantizer( std::vector<Gesture> dataset ){
-    quant->train(dataset);
+void GestureModel::trainQuantizer( std::vector<Gesture> dataset, int considered_gestures ){
+    quant->train(dataset, considered_gestures);
     this->quantizerTrained = true;
 }
 
@@ -47,9 +47,17 @@ bool GestureModel::isQuantizerTrained(){
     return this->quantizerTrained;
 }
 
-void GestureModel::trainHMM(std::vector<Gesture > trainSet){
+void GestureModel::trainHMM(std::vector<Gesture > trainSet, int considered_gestures){
     std::vector<std::vector<int> > discreteTrainSet;
-    for(int i=0; i<trainSet.size(); i++){
+
+    int gesture_number;
+    if(considered_gestures<trainSet.size()){
+        gesture_number = considered_gestures;
+    }else{
+        gesture_number = trainSet.size();
+    }
+
+    for(int i=0; i<gesture_number; i++){
         discreteTrainSet.push_back( quant->getDiscreteSequence(trainSet.at(i)) );
     }
     gestureHMM->trainMS( discreteTrainSet );

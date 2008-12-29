@@ -19,10 +19,10 @@ class GestureModel
         void setQuantizer(Quantizer2* newQuant);
         Quantizer2* getQuantizer();
 
-        void trainQuantizer( std::vector<Gesture> dataset );
+        void trainQuantizer( std::vector<Gesture> dataset, int considered_gestures );
         bool isQuantizerTrained();
 
-        void trainHMM(std::vector<Gesture > trainSet);
+        void trainHMM( std::vector<Gesture > trainSet, int considered_gestures );
         std::vector<double > evaluateGestures(std::vector<Gesture >& testSet);
 
     protected:

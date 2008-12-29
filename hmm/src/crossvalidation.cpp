@@ -85,8 +85,8 @@ return dataset;
 int main(int argc, char** argv)
 {
     //parsing degli input
-    if(argc < 9){
-        std::cout<<"USO: wiiGesture <train_file1> <train_file2> <train_file3> <validation_file1> <validation_file2> <validation_file3> <num_stati> <span>"<<std::endl;
+    if(argc < 11){
+        std::cout<<"USO: wiiGesture <train_file1> <train_file2> <train_file3> <validation_file1> <validation_file2> <validation_file3> <num_stati> <span> <numero_epoche> <numero_gesture_considerate>"<<std::endl;
         return 1;
     }
 
@@ -106,7 +106,15 @@ int main(int argc, char** argv)
     int span;
     s_span >> span;
 
-    std::cout<<"numero stati: "<<stati<<" | span: "<<span<<std::endl;
+    std::istringstream s_epoche(argv[9]);
+    int required_epoche;
+    s_epoche >> required_epoche;
+
+    std::istringstream s_consGest(argv[10]);
+    int gesture_considerate;
+    s_consGest >> gesture_considerate;
+
+    std::cout<<"numero stati: "<<stati<<" | span: "<<span<<" | epoche: "<<required_epoche<<" | gesture considerate: "<<gesture_considerate<<std::endl;
 
     //Costruzione dei Trainset
     std::vector<Gesture> trainset1 = importDataFile(train1);
@@ -129,16 +137,18 @@ int main(int argc, char** argv)
     gesture3 = new GestureModel(stati, span);
 
     //Addestramento dei quantizzatore
-    gesture1->trainQuantizer(trainset1);
-    gesture2->trainQuantizer(trainset2);
-    gesture3->trainQuantizer(trainset3);
+    gesture1->trainQuantizer(trainset1, gesture_considerate);
+    gesture2->trainQuantizer(trainset2, gesture_considerate);
+    gesture3->trainQuantizer(trainset3, gesture_considerate);
 
     std::cout<<"quantizerS: OK"<<std::endl;
 
     //Addestramento HMMs
-    gesture1->trainHMM(trainset1);
-    gesture2->trainHMM(trainset2);
-    gesture3->trainHMM(trainset3);
+    for(int epoche =0; epoche<=required_epoche; epoche++){
+        gesture1->trainHMM(trainset1, gesture_considerate);
+        gesture2->trainHMM(trainset2, gesture_considerate);
+        gesture3->trainHMM(trainset3, gesture_considerate);
+    }
 
     std::cout<<"hmmS: TRAINED"<<std::endl;
 

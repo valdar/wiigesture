@@ -36,7 +36,7 @@ public:
     std::vector<int> getDiscreteSequence(Gesture& gesture);
 
     // addestra i centroidi
-    void train(std::vector<Gesture> gestures);
+    void train(std::vector<Gesture> gestures, int considered_gestures);
 
     ~Quantizer2();
 

@@ -33,12 +33,18 @@ void Quantizer2::init(Gesture gesture){
 }
 
 
-void Quantizer2::train(std::vector<Gesture> gestures){
+void Quantizer2::train(std::vector<Gesture> gestures, int considered_gestures){
     //metagesture: contiene tutte le componenti di tutte le gesture.
     Gesture gesture;
 
     //costruzione della metagesture
-    for(int k=0; k<gestures.size(); k++){
+    int gesture_number;
+    if(considered_gestures<gestures.size()){
+        gesture_number = considered_gestures;
+    }else{
+        gesture_number = gestures.size();
+    }
+    for(int k=0; k<gesture_number; k++){
         std::vector<Sample_3d> curGesturData = gestures.at(k).getData();
         for(int w=0; w<curGesturData.size(); w++){
             gesture.add( curGesturData.at(w) );

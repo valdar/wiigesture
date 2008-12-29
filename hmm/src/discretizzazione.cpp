@@ -122,7 +122,7 @@ int main(int argc, char** argv){
     }
 
     Quantizer2 q;
-    q.train(dataset);
+    q.train(dataset, 90000);//da rivedere mettendo qualcosa di sensato come numero di gesture considerate così le considera tutte
 
     for(int k=0; k<dataset_size; k++){
 
