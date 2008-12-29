@@ -52,7 +52,7 @@
 \usepackage{algorithm}
 % Or whatever. Note that the encoding and the font should match. If T1
 % does not look nice, try deleting the line with the fontenc.
-\usepackage{pgf,pgfarrows,pgfnodes}
+\usepackage{pgf}
 
 \title[Elaborato di Apprendimento Automatico] % (optional, use only with long paper titles)
 {}
@@ -423,7 +423,7 @@ Un possibile criterio \`e di scegliere gli stati $q_{t}$ che sono individualment
 \end{block}
 
 \begin{block}{}
-Utilizzando le variabili $\lambda_{t}(i)$ prima definite si pu\`o trovare lo stato $q_{t}$ pi\`u probabile al tempo $t$ come:
+Utilizzando le variabili $\gamma_{t}(i)$ prima definite si pu\`o trovare lo stato $q_{t}$ pi\`u probabile al tempo $t$ come:
 \begin{center}
 	$q_{t}=\underset{1 \leq i \leq N}{\arg\max}[\gamma_{t}(i)],\ \ \ 1\leq t \leq T$
 \end{center}
@@ -434,7 +434,7 @@ Utilizzando le variabili $\lambda_{t}(i)$ prima definite si pu\`o trovare lo sta
 
 \begin{frame}
 \begin{block}{}
-Il criterio pi\`u largamente usato \`e quello di trovare la singola miglior sequenza ossia massimizzare $P(Q|O,\lambda)$ che \`e equivalente a massimizzare $P(Q,O|\lambda)$.
+Un criterio largamente usato \`e quello di trovare la singola miglior sequenza ossia massimizzare $P(Q|O,\lambda)$ che \`e equivalente a massimizzare $P(Q,O|\lambda)$.
 \end{block}
 
 \begin{block}{}
