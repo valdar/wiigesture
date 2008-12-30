@@ -252,9 +252,9 @@ $X[t+1] \perp S[1], S[2], \ldots, S[t], X[1], X[2], \ldots, X[t] | S[t+1]$
 	\begin{itemize}
 		\item $N$, il numero di stati (nascosti) nel modello
 		\item $M$, il numero di distinti simboli osservabili (alfabeto)
-	 \item $\pi = \{\pi_{i}\}$, con $\pi_{i} = P[q_{1} = S_{i}]$, \`e il vettore delle probabilit\`a iniziali degli stati
- 	 \item $A = \{a_{ij}\}$, con $a_{ij} = P[q_{t+1} = S_{j} | q_{t} = S_{i}]$, \`e la matrice di transizione tra gli stati
- 	 \item $B = \{b_{jk}\}$, con $b_{jk} = P[$\textit{osservo il simbolo }$v_{k}$\textit{ al tempo }$t | q_{t} = S_{j}]$, \`e la matrice di emissione (essendo il modello stazionario, $B$ \`e indipendente dal tempo)
+	 \item $\pi = \{\pi_{i}\}$, con $\pi_{i} = P[q_{1} = S_{i}]$, il vettore delle probabilit\`a iniziali degli stati
+ 	 \item $A = \{a_{ij}\}$, con $a_{ij} = P[q_{t+1} = S_{j} | q_{t} = S_{i}]$, la matrice di transizione tra gli stati
+ 	 \item $B = \{b_{jk}\}$, con $b_{jk} = P[osservo\ il\ simbolo\ v_{k}\ al\ tempo\ t | q_{t} = S_{j}]$, la matrice di emissione (essendo il modello stazionario, $B$ \`e indipendente dal tempo)
 	\end{itemize}
 
  \end{block}
@@ -492,7 +492,7 @@ Ossia \`e la pi\`u alta probabilit\`a lungo un singolo cammino al tempo $t$ che 
 
 \begin{frame}
 \begin{block}{}
- Quello che vogliamo sapere \`e la probabilit\`a, data una classe $C_{i}$, che la sequenza $O$ appartenga a tale classe, ovvero $P(C_{i}|O)$.
+ Quello che vogliamo sapere \`e la probabilit\`a che una data sequenza $O$ appartenga alla classe $C_{i}$, ovvero $P(C_{i}|O)$.
 \end{block}
 \begin{block}{}
  La procedura Forward ci permette invece di determinare $P(O|C_{i})$, ma vale
