@@ -1,0 +1,143 @@
+
+\documentclass[hyperref={pdfpagelabels=false},slidestop,mathserif,red]{beamer}
+
+
+\mode<presentation>{
+  \usetheme{Copenhagen}
+
+  \setbeamercovered{transparent}
+  % or whatever (possibly just delete it)
+}
+%\usecolortheme{lily}
+\usecolortheme{orchid}
+
+\usepackage[italian]{babel}
+% or whatever
+
+\usepackage[latin1]{inputenc}
+% or whatever
+
+\usepackage{times}
+%\usepackage{cite}
+\usepackage[T1]{fontenc}
+%\usepackage{fourier}
+\usepackage{eulervm}
+\usepackage{algorithm}
+% Or whatever. Note that the encoding and the font should match. If T1
+% does not look nice, try deleting the line with the fontenc.
+\usepackage{pgf}
+
+\title[Elaborato di Apprendimento Automatico] % (optional, use only with long paper titles)
+{}
+
+\subtitle
+{Accelerometer Based Gesture Recognition using HMMs} % (optional)
+
+\author[Andrea~Tarocchi, Marco~Magnatti] % (optional, use only with lots of authors)
+{Andrea~Tarocchi, Marco~Magnatti}
+% - Use the \inst{?} command only if the authors have different
+%   affiliation.
+
+
+\date[Exam] % (optional)
+{8 gennaio 2009}
+
+\subject{Talks}
+% This is only inserted into the PDF information catalog. Can be left
+% out
+
+\begin{document}
+
+\section{Algoritmo EM}
+
+\begin{frame}{L'algoritmo EM}{}
+  % - A title should summarize the slide in an understandable fashion
+  %   for anyone how does not follow everything on the slide itself.
+
+\begin{block}{}
+L'algoritmo EM viene utilizzato in situazioni in cui si vuole stimare un set di parametri $\theta$ di una distribuzione di probabilit\`a potendo osservare solo una porzione dei dati prodotti da essa.
+\end{block}
+
+\begin{block}{}
+ Usa la stima corrente dei parametri da determinare per calcolare il valore atteso dei dati nascosti.
+\end{block}
+
+\begin{block}{}
+ Dopodich\'e, quanto appena calcolato viene usato per migliorare l'ipotesi corrente sui parametri.
+\end{block}
+
+\begin{block}{}
+ Iterando pi\`u volte, l'algoritmo aumenta la \textit{likelihood} dei dati rispetto all'ipotesi, fino a convergere a un massimo locale.
+\end{block}
+
+\end{frame}
+
+\begin{frame}{}
+
+\begin{block}{}
+ Siano
+  \begin{itemize}
+   \item $X = {x_{1}, \ldots, x_{m}}$ i dati osservabili
+   \item $Z = {z_{1}, \ldots, z_{m}}$ i dati nascosti
+   \item $Y = X \cup Z$ i dati completi
+   \item $h$ l'ipotesi corrente sui parametri $\theta$
+   \item $h'$ la nuova ipotesi (migliore) da determinare
+  \end{itemize}
+\end{block}
+
+\begin{block}{}
+ $Z$ e (di conseguenza) $Y$ possono essere trattate come variabili aleatorie.
+\end{block}
+
+\begin{block}{}
+ L'algoritmo usa l'ipotesi corrente $h$ al posto dei parametri $\theta$ per stimare la istribuzione di $Y$, che non \`e nota.\\
+ Viene poi cercata l'ipotesi $h'$ a massima verosomiglianza massimizzando la funzione $E[\ln P(Y | h'))]$.
+\end{block}
+
+\end{frame}
+
+\begin{frame}{}
+
+\begin{block}{}
+ Introduciamo
+ \begin{center}
+  $Q(h'|h) = E[\ln P(Y | h'))\ |\ h, X]$
+ \end{center}
+ che esprime $E[\ln P(Y | h'))$ come funzione della variabile $h'$, sotto l'assunzione che $\theta = h$, e data la porzione osservata $X$ dei dati.
+\end{block}
+
+\begin{block}{Algoritmo EM}
+ \begin{enumerate}
+  \item E-step: calcola $Q(h'|h)$, usando l'ipotesi corrente e i dati osservabili $X$ per stimare la distribuzione di $Y$.
+  \item M-step: sostituisci $h$ con l'ipotesi $h'$ che massimizza $Q$:
+	\begin{center}
+	 $h \leftarrow \arg\max_{h'} Q(h'|h)$
+	\end{center}
+ \end{enumerate}
+
+\end{block}
+
+\begin{block}{}
+ L'algoritmo converge a un massimo locale della funzione di \textit{likelihood} $P(Y|h')$.
+\end{block}
+
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Bibliografia}
+	
+		\begin{thebibliography}{}
+		%
+			\footnotesize
+				
+			\bibitem<1->[Mitchell, 1997]{Mitchell1997}
+			 Tom M. Mitchell
+			\newblock {\em Machine Learning}, pp 191-195.
+			\newblock McGraw-Hill, 1997
+		\end{thebibliography}
+\end{frame}
+
+\end{document}
+
+
