@@ -1,7 +1,7 @@
 % $Header: /cvsroot/latex-beamer/latex-beamer/solutions/generic-talks/generic-ornate-15min-45min.en.tex,v 1.5 2007/01/28 20:48:23 tantau Exp $
 
 %\documentclass[mathserif]{beamer}
-\documentclass[slidestop,mathserif,red]{beamer}
+\documentclass[hyperref={pdfpagelabels=false},slidestop,mathserif,red]{beamer}
 
 
 % This file is a solution template for:
@@ -171,7 +171,7 @@ Il nostro obietivo \`e realizzare un sistema che, dopo adeguato addestramento, s
 
 \begin{figure}[htbp]
 	\centering
-		\includegraphics[scale=0.5]{schema.png}
+		\includegraphics[scale=0.496]{schema.png}
 	\label{fig:schema}
 \end{figure}
 
@@ -484,7 +484,7 @@ Ossia \`e la pi\`u alta probabilit\`a lungo un singolo cammino al tempo $t$ che 
 \begin{itemize}
  \item Per ciascuna classe di gesture che si intende riconoscere, si addestra un distinto HMM.
  \item Data una gesture $O$ da riconoscere, questa viene sottoposta a ciascun modello $\lambda_{i}$, e tramite la procedura Forward si calcolano le probabilit\`a $P(O|\lambda_{i})$.
- \item La gesture viene attribuita alla classe relativa all'HMM che produce la probabilit\`a maggiore (se almeno una di queste supera una soglia minima, altrimenti la gesture viene classificata come ``sconosciuta'').
+ \item La gesture viene attribuita alla classe relativa all'HMM che produce la probabilit\`a maggiore.
 \end{itemize}
 
 \end{block}
@@ -509,7 +509,7 @@ Ossia \`e la pi\`u alta probabilit\`a lungo un singolo cammino al tempo $t$ che 
 \begin{block}{}
 \begin{itemize}
 \item Si \`e messo alla prova il software su 3 classi di gesture: triangolo, quadrato e zeta.
-\item La topologia utilizzata \`e quella left-to-right, con span 2 e 5 diversi stati (combinazione di parametri che ha prodotto i risultati migliori).
+\item La topologia utilizzata \`e quella left-to-right, con span 1 e 9 diversi stati (combinazione di parametri che ha prodotto i risultati migliori).
 \item Il dataset utilizzato comprende circa 50 gesture per classe, eseguite da 2 persone distinte.
 \item La valutazione delle prestazioni \`e stata effettuata tramite 3-fold cross validation.
 \end{itemize}
@@ -517,12 +517,63 @@ Ossia \`e la pi\`u alta probabilit\`a lungo un singolo cammino al tempo $t$ che 
 \end{block}
 \end{frame}
 
-\begin{frame}{Risultati}
-  \begin{figure}[ht]
-	\centering
-	\includegraphics[scale=0.32]{risultati.png}
-	\label{fig:risultati}
-  \end{figure}
+\begin{frame}[shrink]{Risultati}
+\begin{block}{}
+\begin{columns}[T]
+\begin{column}[C]{2cm}
+\ \\
+\alert{Triangolo:}\\
+51 su 51 100\%
+\end{column}
+\begin{column}[TL]{8cm}
+\begin{itemize}
+ \item fold 1: 17 su 17
+ \item fold 2: 17 su 17
+ \item fold 3: 17 su 17
+\end{itemize}
+\end{column}
+\end{columns}
+\pgfputat{\pgfxy(8.5,-0.05)}{\pgfbox[left,base]{\includegraphics[width=1.6cm]{triangolo.png}}}\end{block}
+
+\begin{block}{}
+\begin{columns}[T]
+\begin{column}[C]{2cm}
+\ \\
+\alert{Quadrato:}\\
+47 su 51 92\%
+\end{column}
+\begin{column}[TL]{8cm}
+\begin{itemize}
+ \item fold 1: 16 su 17
+ \item fold 2: 15 su 17
+ \item fold 3: 16 su 17
+\end{itemize}
+\end{column}
+\end{columns}
+\pgfputat{\pgfxy(8.5,-0.01)}{\pgfbox[left,base]{\includegraphics[width=1.6cm]{quadrato.png}}}
+\end{block}
+
+\begin{block}{}
+\begin{columns}[T]
+\begin{column}[C]{2cm}
+\ \\
+\alert{Zeta:}\\
+51 su 51 100\%
+\end{column}
+\begin{column}[TL]{8cm}
+\begin{itemize}
+ \item fold 1: 17 su 17
+ \item fold 2: 17 su 17
+ \item fold 3: 17 su 17
+\end{itemize}
+\end{column}
+\end{columns}
+\pgfputat{\pgfxy(8.5,-0.05)}{\pgfbox[left,base]{\includegraphics[width=1.6cm]{zeta.png}}}\end{block}
+%  \begin{figure}[ht]
+%	\centering
+%	\includegraphics[scale=0.32]{risultati.png}
+%	\label{fig:risultati}
+%  \end{figure}
 \end{frame}
 
 
