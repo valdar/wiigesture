@@ -1,10 +1,17 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <sstream>
+#include <string>
 
 #include "hmm.h"
-#include "Gaussian_3d.h"
-#include "Gaussian_3d_mixture.h"
+#include "sample_3d.h"
+#include "gesture.h"
+#include "GestureModel.h"
+
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/io.hpp>
+
 
 using namespace std;
 
@@ -14,40 +21,173 @@ using namespace std;
  *      leggere riguardo training con sequenze multiple (273)
 */
 
-int main()
+int main(int argc, char** argv)
 {
-    /*
-    srand(time(0));
+    //parsing degli input
+    if(argc < 5){
+        std::cout<<"USO: wiiGesture <train_file> <validation_file> <num_stati> <span>"<<std::endl;
+        return 1;
+    }
 
-    // se size<2 si ha errore in backwardProc, e crash a riga 146 di hmm.cpp
-    int size = 16;// 1 + rand()%1000;
-    int num_samples = 1;
+    char* train = argv[1];
+    char* valid = argv[2];
 
-    vector<int> gesture;
-    for(int i=0; i<size; i++)
-        gesture.push_back(1 + rand()%14);
+    std::istringstream s_stati(argv[3]);
+    int stati;
+    s_stati >> stati;
 
-    int numStati = 8;
-    int numSimboli = 14;
-    bool isErgodic = false;
+    std::istringstream s_span(argv[4]);
+    int span;
+    s_span >> span;
 
-    HMM hmm(numStati, numSimboli, isErgodic);
+    //Costruzione del Trainset
+    int module = 3; //i valori sono a 3 a 3.
 
-    vector< vector<int> > dataset;
-    for(int i=0; i<num_samples; i++)
-        dataset.push_back(gesture);
+    std::ifstream train_fs(train);
 
-    hmm.trainMS(dataset);
+    std::string word; // parola correntemente acquisita
 
-    cout << "size: " << size << endl;
+    std::vector<Gesture> dataset; // dataset di gesture (non discrete) da ricostruire
 
-    hmm.print();
-    hmm.print_to_file();
-    */
+    int count = 0;// n° di gesture correntemente processate
 
-    Gaussian_3d* g = new Gaussian_3d();
+    int n_word = 0;// n° dati acquisiti per la gesture corrente
 
-    std::cout<<g->cov<<std::endl;
+    double temp[module];// terna di accelerazioni corrente
+
+    while(!train_fs.eof()){
+
+        // acquisisce la prima parola FORMATTATA
+        train_fs >> word;
+
+        // inizio di una gesture
+        if(word == "<gesture>"){
+
+            // crea una nuova gesture nel dataset
+            dataset.push_back(Gesture());
+
+            // incrementa il n° di gesture processate
+            count++;
+
+        }
+        // fase acquisizione dati della gesture
+        else if(word != "<gesture>" && word != "</gesture>"){
+
+            // converte la parola acquisita in mumero
+            std::istringstream num(word);
+            double value;
+            num >> value;
+
+            // memorizza il numero
+            temp[n_word%module] = value;
+
+            // se ho memorizzato una terna di numeri, crea da essi un Sample_3d
+            // e inseriscilo nella gesture corrente
+            if( (n_word % module) == 2){
+                //temp[2] = temp[2] - 1;
+                dataset.at(count-1).add(Sample_3d(temp));
+            }
+
+            // incrementa il contatore delle parole processate
+            n_word++;
+
+        }
+        // fine di una gesture
+        else if(word == "</gesture>"){
+
+            n_word = 0;
+
+        }
+
+    }
+
+    //Costruzione del Validation
+
+    std::ifstream valid_fs(valid);
+
+    word = ""; // parola correntemente acquisita (azzerata per sicurezza)
+
+    std::vector<Gesture> testset; // dataset di gesture (non discrete) da ricostruire
+
+    count = 0;// n° di gesture correntemente processate (azzerata per sicurezza)
+
+    n_word = 0;// n° dati acquisiti per la gesture corrente (azzerata per sicurezza)
+
+    //double temp[module];// terna di accelerazioni corrente
+
+    while(!valid_fs.eof()){
+
+        // acquisisce la prima parola FORMATTATA
+        valid_fs >> word;
+
+        // inizio di una gesture
+        if(word == "<gesture>"){
+
+            // crea una nuova gesture nel dataset
+            testset.push_back(Gesture());
+
+            // incrementa il n° di gesture processate
+            count++;
+
+        }
+        // fase acquisizione dati della gesture
+        else if(word != "<gesture>" && word != "</gesture>"){
+
+            // converte la parola acquisita in mumero
+            std::istringstream num(word);
+            double value;
+            num >> value;
+
+            // memorizza il numero
+            temp[n_word%module] = value;
+
+            // se ho memorizzato una terna di numeri, crea da essi un Sample_3d
+            // e inseriscilo nella gesture corrente
+            if( (n_word % module) == 2){
+                //temp[2] = temp[2] - 1;
+                testset.at(count-1).add(Sample_3d(temp));
+            }
+
+            // incrementa il contatore delle parole processate
+            n_word++;
+
+        }
+        // fine di una gesture
+        else if(word == "</gesture>"){
+
+            n_word = 0;
+
+        }
+
+    }
+
+
+    //Costruzione del GesturModel
+    GestureModel* gesture1;
+    gesture1 = new GestureModel(stati, span);
+
+    //Addestramento del quantizzatore
+    gesture1->trainQuantizer(dataset);
+
+    std::cout<<"quantizer: OK"<<std::endl;
+
+    //Addestramento HMM
+    gesture1->trainHMM(dataset);
+
+    std::cout<<"hmm: TRAINED"<<std::endl;
+
+    //Tests (validation)
+    std::cout<<std::endl;
+
+    std::vector<double> prob = gesture1->evaluateGestures(testset);
+
+    for(int g=0; g<prob.size(); g++){
+
+        std::cout<<"prob gesture "<<g<<": "<<prob.at(g)<<std::endl;
+    }
 
     return 0;
 }
+
+
+

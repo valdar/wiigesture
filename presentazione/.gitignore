@@ -1,0 +1,15 @@
+#BACKUP FILES
+*~
+
+#FILE PROGETTO KILE
+*.kilepr
+
+#FILE LATEX
+*.aux
+*.nav
+*.out
+*.snm
+*.toc
+*.log
+*.backup
+*.pdf

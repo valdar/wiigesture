@@ -2,6 +2,7 @@
 
 # Ignore objects
 *.o
+hmm/obj/*
 
 # Ignore code blocks workspace file
 *.workspace
@@ -14,9 +15,19 @@
 
 # Ignore binaries
 hmm/bin/*
+wiiuse/bin/*
+
+# Ignore Sconstruct script (problema path libboost 1.36 su ubuntu)
+hmm/SConstruct
 
 # Ignore linux directory files
 .directory
 
 # Ignore backups
 *~
+tempGesture.txt
+
+# Ignore Scons stuff
+config.log
+.sconf_temp
+.sconsign.dblite

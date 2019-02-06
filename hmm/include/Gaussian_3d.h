@@ -1,23 +1,32 @@
 #ifndef GAUSSIAN_3D_H
 #define GAUSSIAN_3D_H
 
-#include <math.h>
+#define MAX_ACC 4.0
 
+#include <math.h>
+#include <iostream>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
 
+#include "sample_3d.h"
+
 
 class Gaussian_3d{
+
+    friend std::ostream& operator<<(std::ostream& os, const Gaussian_3d& g);
 
 public:
     double mean[3];
     boost::numeric::ublas::matrix<double> cov;
 
-    Gaussian_3d() : cov(3,3) { init(); };
-    double pdf_3d(double* x);
+    Gaussian_3d(bool rand=false) : cov(3,3) { if(rand) rand_init(); else zero_init(); };
+    double pdf_3d(Sample_3d x);
 
 private:
-    void init();
+    double det_3d(boost::numeric::ublas::matrix<double> mat);
+    void inv_3d(boost::numeric::ublas::matrix<double> mat, boost::numeric::ublas::matrix<double> &inv);
+    void rand_init();
+    void zero_init();
 };
 
 #endif // GAUSSIAN_3D_H
